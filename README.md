@@ -1,23 +1,26 @@
-# CapstoneProjectTemplate /* Replace this line with the title of your project */
+# Cheetah Sign
 
 ## **Summary**
 
-Put a very high-level summary of the project.
+A document signing application that will be integrated in the Cheetah Flow system. This system is used by Trust administrators and their designees to manage finances, and Cheetah would like a custom document signing application to replace a proprietary product they currently use. 
 
 ## **Team Members**
 
-- Joe Black
-- Joe Pesci
-- Joe Dalton
+- Alec Burch-DeWitt
+- Christian Johnson
+- Christopher Ortega
+- Dominic Szpak
+- Trinity Washington
 
 ## **Client Partner Information**
 
-### *Company:*
-WHATEVER COMPANY or CORRESPONDENCE
+### *Company:* 
+Cheetah, Inc
 
 ### *People:*
-- Jane Fonda
-- Jane Lynch
+- Josh Rittenhouse
+- Gabe Chandler
+- Ryland Babusiak
 
 ## **Links**
 
@@ -25,11 +28,8 @@ WHATEVER COMPANY or CORRESPONDENCE
 - [Team meeting minutes](MeetingMinutes/Team)
 - [Mentor meeting minutes](MeetingMinutes/Mentor)
 - [Client partner meeting minutes](MeetingMinutes/ClientPartner)
-- ... any other documents/links you see need
+
 
 ## **Code Repositories**
 
-- [Mobile App - Android](https://www.github.com/WHEREEVER_THE_ANDROID_CODE_IS/)
-- [Php Backend](https://www.github.com/WHEREEVER_THE_PHP_CODE_IS)
-- Others if more.
-
+- None, yet.
