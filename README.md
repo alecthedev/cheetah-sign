@@ -30,6 +30,11 @@ Cheetah, Inc
 - [Client partner meeting minutes](MeetingMinutes/ClientPartner)
 
 
-## **Code Repositories**
+## **Project Management**
 
-- None, yet.
+- https://github.com/users/alecthedev/projects/2
+
+## **Code Repository**
+
+This repo is private and requires approval to access.
+- https://bitbucket.org/accutechcapstone/bsu.cheetah.sign.2025/src/main/
