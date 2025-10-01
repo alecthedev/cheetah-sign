@@ -1,8 +1,7 @@
 ## Functional Requirements
 
 ### Use Case 1
-- FR1: The system will be able to handle uploads and store documents in .pdf format.
-	- And docx???
+- FR1: The system will be able to handle uploads in pdf and  doc, docx and store documents in .pdf format.
 	- UC1
 	- High priority
 - FR2: The system will render .pdf documents for viewing.
@@ -29,9 +28,12 @@
 slots for information or pre-filled information. 
 	- UC3
 	- High priority
+ - FR12: The system will have field validation, so that signers can only enter valid inputs
+  	- UC3
+	- High priority
 
 ### Use Case 4
-- FR8: The system allows the client to acces documents that need signed via
+- FR8: The system allows the client to access documents that need signed via
   email. When finished, send signed document to admins.
   - UC4
   - High priority
