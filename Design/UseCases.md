@@ -1,10 +1,12 @@
 # Use Cases
 
 ## Actors
-- Trust administrator
+- Administrators
+    - People that are creating documents and designating fields that need to be signed.
 - Clients
+    - People who need to sign legally binding documents that are working with Cheetah Inc.
 
-Explain characteristics
+
 
 ## Use Cases
 
