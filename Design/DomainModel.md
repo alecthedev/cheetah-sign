@@ -195,6 +195,8 @@ classDiagram
 
 ## Classes
 
+### Administrator
+
 The main users of the system who manage document signing workflows. Admins can upload documents, manage clients, and monitor the signing process. Each admin will have their own login and can customize their experience with favorited documents.
 
 ### DocumentBlueprint
