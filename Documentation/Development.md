@@ -19,7 +19,6 @@ Once you're on the repository you can click 'Clone'. This will give you a
 link you can use to clone into the repository.
 ![cloning](./images/Cloning.png)
 
-![[Pasted image 20251021105405.png]]
 After copying the link, open your terminal or IDE and cd into your directory
 of choice. Once in your directory, paste the link to clone the repository. If
 you run into any access errors you can get assistance by reaching out to
