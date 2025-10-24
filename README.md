@@ -20,7 +20,7 @@ Cheetah, Inc
 ### *People:*
 - Josh Rittenhouse
 - Gabe Chandler
-- Ryland Babusiak
+- Kade Dentel
 
 ## **Links**
 
