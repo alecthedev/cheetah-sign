@@ -179,6 +179,10 @@ The Vitest integration test files are a little bit more complicated than the nor
   <br>
   This is another piece of our Microsoft Entity Framework setup. This folder contains our AppDbContext, which is a class that serves as a bridge between your application and the database. It is responsible for managing your database tables and fields. This also contains the mock PostgreSQL databases that are used in backend unit testing and integration testing.
 
+- interfaces
+  <br>
+  This directory contains interfaces for the backend. Implementations include the DocumentConverter class, which relies on an external dependency to convert documents to PDF. Interfaces allow us to better maintain our code, should dependencies ever need to change.
+
 ### Important Files
 
 - docker-compose.yml & docker-compose-tests.yml
