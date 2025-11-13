@@ -29,6 +29,12 @@ After selecting your PDF file, click the blue upload button. You should receieve
 ![DocumentBuilderButton](./images/DocumentBuilderButton.png)
 ![DocumentUploadToast](./images/DocumentUploadToast.png)
 
+There is a 10MB file upload limit.
+
+### Document Conversion
+
+If you select a .doc, .docx, or .xlsx file it will be automatically converted to a .pdf file to use within the Cheetah Sign environment. 
+
 ### After Uploading
 
 All uploaded files can be found in the "My Documents" section of the application and in the 'Documents' section of the Document Builder page. Each document is listed
