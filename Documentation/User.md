@@ -20,12 +20,12 @@ In order to send a document to a client, you must first upload it. You can do th
 top of the "My Documents" page.
 This button will take you to a
 modal pop-up with a browse files
-button. Click the button or upload icon to open up your file browser, and select the PDF file that you would like to upload. Cheetah Sign currently only supports PDF files.
+button. Click the button or upload icon to open up your file browser, and select the PDF file that you would like to upload. Cheetah Sign currently only supports pdf, doc, docx, and xslx files.
 
 ![UploadForm](./images/UploadDocumentsButton.png)
 ![UploadModal](./images/UploadModal.png)
 
-After selecting your PDF file, click the blue upload button. You should receieve a notification that the file has been uploaded to the server, and is ready to be built. The next step is to build this document for sending! You can either navigate to the Document Builder through the Toast notification, or click one of the two Document Builder buttons.
+After selecting your file, click the blue upload button. You should receieve a notification that the file has been uploaded to the server, and is ready to be built. The next step is to build this document for sending! You can either navigate to the Document Builder through the Toast notification, or click one of the two Document Builder buttons.
 ![DocumentBuilderButton](./images/DocumentBuilderButton.png)
 ![DocumentUploadToast](./images/DocumentUploadToast.png)
 
