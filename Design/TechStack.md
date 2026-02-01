@@ -12,7 +12,7 @@ Our client wanted us to use Node.js because it supports Vue and Vite, which are 
 Vue.js is the main framework for the frontend. It lets us build a single-page application  where the user can move between screens smoothly without the page reloading.
 Vue is easier to learn than some other frameworks and is already used in the client’s other products.
  
-- [Vite 5](https://vite.dev) - Vite is the build tool and development server for Vue.
+- [Vite 6](https://vite.dev) - Vite is the build tool and development server for Vue.
 It makes starting the app very fast which means we can see code changes right away without restarting.
 This makes development smoother and was included by the client in the base setup for Cheetah Sign.
 
