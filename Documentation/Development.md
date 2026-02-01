@@ -121,9 +121,14 @@ Frontend (webclient directory):
 
 Backend (API directory):
 
-- 'dotnet test' for running backend unit tests
-- 'dotnet-coverage collect dotnet test -f xml' for backend test coverage
-- 'reportgenerator -reports:"output.xml" -targetdir:"coveragereport" -reporttypes:Html' for generating a test coverage report
+- Backend unit tests (no coverage): 
+  - run `./run-backend-tests.sh` 
+- Backend test coverage: 
+  - run `./run-backend-coverage.sh` from the API directory.
+  - This runs unit tests with [Coverlet](https://github.com/coverlet-coverage/coverlet), then generates an HTML report in the 'coveragereport' folder. You need the ReportGenerator global tool: `dotnet tool install -g dotnet-reportgenerator-globaltool`
+  - To run coverage and report steps manually:
+    - `dotnet test UnitTests/UnitTests.csproj --collect:"XPlat Code Coverage"` to collect coverage (output: UnitTests/TestResults/*/coverage.cobertura.xml)
+     - `reportgenerator -reports:"UnitTests/TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html` to generate the HTML report
 
 You should be able to open the newly created index.html report in the 'coveragereport' folder.
 
