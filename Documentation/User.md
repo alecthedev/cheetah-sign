@@ -130,6 +130,14 @@ Once an admin decides to send a built document to a client, the client will rece
 
 ![emailedDoc](./images/EmailedDocument.png)
 
-After following this link, clients will be presented with the built document containing all text fields to input the requested information. To fill out the document, they will use a stepper component that contains text boxes labeled with the desired input. On the last step they will see a 'Finish' button. After clicking this button, a modal will appear telling them 'Thanks for signing!' with an option to download their signed document. Since the signing is complete, Admins should now be able to view and download the signed document!
+
+### Signing Documents
+After following this link, clients will be prompted to confirm the information that will autofill the document fields. Any edit made to these fields will be reflected in the rest of the document. Pressing cancel on this popup will fill all the fields with the information initially loaded. Press confirm after changing a field value to actually close the box and update the fields with your new values.
+
+![autofill-demo](./images/autofill-demo.gif)
+
+Next, clients will be presented with the built document containing all text fields to input the requested information. To fill out the document, they will use a stepper component that contains text boxes labeled with the desired input. 
+
+On the last step they will see a 'Finish' button. After clicking this button, a modal will appear telling them 'Thanks for signing!' with an option to download their signed document. Since the signing is complete, Admins should now be able to view and download the signed document!
 
 ![SigningExample](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjB5aGtlZjYwZTkyeGF5em0yenZjbXlqcjdhN3R6bzc0b2tkamFlMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uDBLLOmgdgDf5RzUs7/giphy.gif)
