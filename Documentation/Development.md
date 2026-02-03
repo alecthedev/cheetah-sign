@@ -92,11 +92,11 @@ Use this directory to edit the current endpoints or create new files with new en
 ### Editing the Backend (PostgreSQL Database)
 
 If you want to edit the database, refer to the Contexts folder with the file [AppDbContext](https://sbelialov.medium.com/quick-and-easy-dbcontext-setup-in-net-70e2211be8f4). This file is used to define
-your database tables and fields, and it must coorelate with the actual database server setup. You can define and edit our Postgres database server tables within the 'sign-pgadmin' port on Docker (you can find the login info in the docker compose file under pg-admin). This will take you to [pgAdmin](https://www.pgadmin.org/), a development platform for PostgreSQL. However, your tables should automatically be created when you run the application. These are based off our latest [database migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli) found in the 'migrations' folder.
+your database tables and fields, and it must correlate with the actual database server setup. You can define and edit our Postgres database server tables within the 'sign-pgadmin' port on Docker (you can find the login info in the docker compose file under pg-admin). This will take you to [pgAdmin](https://www.pgadmin.org/), a development platform for PostgreSQL. However, your tables should automatically be created when you run the application. These are based off our latest [database migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli) found in the 'migrations' folder.
 
 ![pgAdmin](./images/pgadmin.png)
 
-To actually perform database operations, we use [Microsoft Entity Framework](https://learn.microsoft.com/en-us/aspnet/entity-framework) - an object-relational mapper. Entity Framework provides a seamless and efficient way to interact with a database by allowing you to work with them using C# objects. It works directly with the AppDbContext we mentioned ealier. These operations can be found in our 'Endpoints' directory.
+To actually perform database operations, we use [Microsoft Entity Framework](https://learn.microsoft.com/en-us/aspnet/entity-framework) - an object-relational mapper. Entity Framework provides a seamless and efficient way to interact with a database by allowing you to work with them using C# objects. It works directly with the AppDbContext we mentioned earlier. These operations can be found in our 'Endpoints' directory.
 
 ## Accessing the Application & How to Test
 
@@ -121,17 +121,22 @@ Frontend (webclient directory):
 
 Backend (API directory):
 
-- 'dotnet test' for running backend unit tests
-- 'dotnet-coverage collect dotnet test -f xml' for backend test coverage
-- 'reportgenerator -reports:"output.xml" -targetdir:"coveragereport" -reporttypes:Html' for generating a test coverage report
+- Backend unit tests (no coverage): 
+  - run `./run-backend-tests.sh` 
+- Backend test coverage: 
+  - run `./run-backend-coverage.sh` from the API directory.
+  - This runs unit tests with [Coverlet](https://github.com/coverlet-coverage/coverlet), then generates an HTML report in the 'coveragereport' folder. You need the ReportGenerator global tool: `dotnet tool install -g dotnet-reportgenerator-globaltool`
+  - To run coverage and report steps manually:
+    - `dotnet test UnitTests/UnitTests.csproj --collect:"XPlat Code Coverage"` to collect coverage (output: UnitTests/TestResults/*/coverage.cobertura.xml)
+     - `reportgenerator -reports:"UnitTests/TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html` to generate the HTML report
 
 You should be able to open the newly created index.html report in the 'coveragereport' folder.
 
 ### Running Integration Tests
 
-To run the unit tests for the backend and frontend, you're good just to build the application and enter the commands. However, the integration tests require a bit more setup first.
+To run the integration tests, you need a bit more setup first.
 
-If you remember earlier, we mentioned that this project contains two [Docker Compose](https://docs.docker.com/compose/) files. The main Docker Compose, 'docker-compose.yml', is what is used to run the main application (and it's run by default when running the docker compose up command). The 'docker-compose-test.yml' file is used for running our integration tests. **This compose MUST be running to successfully run our integration tests**. This Docker Compose stack makes sure that the backend runs our mock database an not our development/production database. To run this specific Docker Compose, use the command 'docker-compose -f docker-compose-tests.yml up'. You will then be good to run 'npm run integration' to start the integration tests.
+If you remember earlier, we mentioned that this project contains two [Docker Compose](https://docs.docker.com/compose/) files. The main Docker Compose, 'docker-compose.yml', is what is used to run the main application (and it's run by default when running the docker compose up command). The 'docker-compose-tests.yml' file is used for running our integration tests. **This compose MUST be running to successfully run our integration tests**. This Docker Compose stack makes sure that the backend runs our mock database and not our development/production database. To run this specific Docker Compose, use the command 'docker-compose -f docker-compose-tests.yml up'. You will then be good to run 'npm run integration' to start the integration tests.
 
 The Vitest integration test files are a little bit more complicated than the normal unit tests. Essentially, we are calling an endpoint before every integration is ran. This endpoint clears the database (to always start the tests with a fresh mock database) and saves one mock document to the mock database. The one document being in the database is crucial for the tests to actually test how our frontend and backend interact.
 
@@ -153,7 +158,7 @@ The Vitest integration test files are a little bit more complicated than the nor
 
 - Service-Base
   <br>
-  Within our SDK folder, our service base folder contains our service base file and our axios setup file. These are both an integral part of our application. Axios is a popular JavaScript library used for making HTTP requests. Our service base file adds to that and is like a template that iss designed to help us reuse HTTP methods across other classes, avoiding duplication of code.
+  Within our SDK folder, our service base folder contains our service base file and our axios setup file. These are both an integral part of our application. Axios is a popular JavaScript library used for making HTTP requests. Our service base file adds to that and is like a template that is designed to help us reuse HTTP methods across other classes, avoiding duplication of code.
 
   Service-Base also contains our 'vuex.ts' file. This file is using a Vue library called Vuex, which is a state management library. We use it primarily for reactively updating our UI when a document is uploaded, so you don't have to refresh the page to see the changes.
 
@@ -187,7 +192,7 @@ The Vitest integration test files are a little bit more complicated than the nor
 
 - docker-compose.yml & docker-compose-tests.yml
   <br>
-  Like mentioned before, our docker-compose.yml is used for running our main application. The docker-compose-tests.yml is only used for running the integration tests. We need this extra Docker Compose file so it can spin up our mock PostgreSQL database rather than our development/production database. These files contain everything you need to run our application by simpling using the command 'docker compose up'.
+  Like mentioned before, our docker-compose.yml is used for running our main application. The docker-compose-tests.yml is only used for running the integration tests. We need this extra Docker Compose file so it can spin up our mock PostgreSQL database rather than our development/production database. These files contain everything you need to run our application by simply using the command 'docker compose up'.
 
 - Program.cs
   <br>
@@ -196,7 +201,7 @@ The Vitest integration test files are a little bit more complicated than the nor
 
 - PgDataFixture.cs & PgDataFixtureIntegration.cs
   <br>
-  These files contain our mock databases. One used for backend unit testing and the other used for intergation testing.
+  These files contain our mock databases. One used for backend unit testing and the other used for integration testing.
 
 - AppDbContext.cs
   <br>

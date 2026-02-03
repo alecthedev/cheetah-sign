@@ -4,10 +4,10 @@
 
 This project is built with Vue.js + TypeScript, .NET w/ C#, and PostgreSQL. It has been fully containerized with Docker. It contains four Docker images running in a single container. These images include:
 
-- sign-pg-admin: A PostgreSQL database management tool that provides a UI to interact with your PostgreSQL database.
+- sign-pgadmin: A PostgreSQL database management tool that provides a UI to interact with your PostgreSQL database.
 - sign-pgdata: The PostgreSQL database image that stores the application's database setup.
 - sign-api: The backend for the application, which interacts with PostgreSQL and handles requests from end users.
-- cheetahsign.webclient-1: The frontend for the application
+- Frontend (container name is project-dependent, e.g. `<project>-cheetahsign-webclient-1`): The frontend for the application
 
 For more information, refer to [Development.md](Development.md).
 
