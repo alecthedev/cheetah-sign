@@ -149,4 +149,4 @@ When signing a document, clients can choose how they want to provide their signa
 
 On the last step they will see a 'Finish' button. After clicking this button, a modal will appear telling them 'Thanks for signing!' with an option to download their signed document. Since the signing is complete, Admins should now be able to view and download the signed document!
 
-![SigningExample](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjB5aGtlZjYwZTkyeGF5em0yenZjbXlqcjdhN3R6bzc0b2tkamFlMCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uDBLLOmgdgDf5RzUs7/giphy.gif)
+![SigningExample](images/FInal-ezgif.com-video-to-gif-converter.gif)
