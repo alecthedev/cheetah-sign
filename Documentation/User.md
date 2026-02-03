@@ -33,7 +33,7 @@ There is a 10MB file upload limit.
 
 ### Document Conversion
 
-If you select a .doc, .docx, or .xlsx file it will be automatically converted to a .pdf file to use within the Cheetah Sign environment. 
+If you select a .doc, .docx, or .xlsx file it will be automatically converted to a .pdf file to use within the Cheetah Sign environment.
 
 ### After Uploading
 
@@ -59,8 +59,11 @@ After you have uploaded a base document, navigate to the "Document Builder" tab 
 Once here, you'll be able to view the Cheetah Document Builder! The Document Builder contains two tabs - 'Edit' and
 'Documents'. Under 'Documents' you can select one of the documents you have previously uploaded and it will be rendered in the gray zone. Under 'Edit' you will be presented with the name of your document, the number of pages, and your options of input types.
 
+Additonally, you'll be given a button to allow you to swap between which client signs what fields in the event that two clients are signing the same paperwork.
+
 ![DocumentBuilderExample](./images/documentBuilderExample.png)
-![BuilderInputsExample](./images/BuilderInputs.png)
+![BuilderInputsExample](./images/multiBuildOne.png)
+![BuilderInputsExample2](./images/multiBuildTwo.png)
 
 ### Cheetah Build Drag and Drop
 
@@ -92,6 +95,7 @@ a client and a status determining the state of the document. You can create a Jo
 
 ![SendButton](./images/ButtonSend.png)
 ![SendModal](./images/SendModal.png)
+![MultiSend](./images/multiSend.png)
 
 ### After Sending
 
