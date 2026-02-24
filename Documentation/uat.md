@@ -17,15 +17,15 @@
 ## Feature: Upload Document
 
 ### Scenario 1: Happy Path
-**Given:** Given a admin user uploads a document
+**Given:** Given a admin user uploads a document that is system accepted
 
-**When:** When you want to upload it
+**When:** When they want to upload a document for signing
 
-**Then:** Then the file is uploaded to the database
+**Then:** Then the file is uploaded (and converted if needed) to the database
 
 **Status:** Client Accepted
 
-**Evidence:** UploadDocumentTest.cs
+**Evidence:** UploadDocumentTest.cs, DocumentConverterTest.cs
 
 ### Scenario 2: Error Handling
 **Given:**
