@@ -8,8 +8,9 @@
 
 | Feature | Priority | Iteration | Client Facing (Y/N) |
 |---------|----------|-----------|---------------------|
-|UploadDocument|Medium|0|Y|
-|DocumentSigning|High|0|Y|
+|UploadDocument|Medium|0/1|Y|
+|DocumentSigning|High|0/1/2/3/4|Y|
+|DocumentDownload|Low|0/4|Y|
 
 ---
 
@@ -73,18 +74,18 @@
 
 ---
 
-## Feature: Upload Document
+## Feature: Download Document
 
 ### Scenario 1: Happy Path
-**Given:** Given a admin user uploads a document that is system accepted
+**Given:** Given a user has completed a job
 
-**When:** When they want to upload a document for signing
+**When:** When they finish signing the document
 
-**Then:** Then the file is uploaded (and converted if needed) to the database
+**Then:** Then the file is able to be downloaded locally 
 
 **Status:** Client Accepted
 
-**Evidence:** UploadDocumentTest.cs, DocumentConverterTest.cs
+**Evidence:** FileDeleterAndPacketDownloadTests.cs
 
 ### Scenario 2: Error Handling
 **Given:**
