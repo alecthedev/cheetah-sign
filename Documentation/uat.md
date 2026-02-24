@@ -73,6 +73,35 @@
 
 ---
 
+## Feature: Upload Document
+
+### Scenario 1: Happy Path
+**Given:** Given a admin user uploads a document that is system accepted
+
+**When:** When they want to upload a document for signing
+
+**Then:** Then the file is uploaded (and converted if needed) to the database
+
+**Status:** Client Accepted
+
+**Evidence:** UploadDocumentTest.cs, DocumentConverterTest.cs
+
+### Scenario 2: Error Handling
+**Given:**
+
+**When:**
+
+**Then:**
+
+**Status:**
+
+**Evidence:**
+
+### Scenario 3: Edge Case
+...
+
+---
+
 # 3. Client UAT Log
 
 These tests are validated by the client.
