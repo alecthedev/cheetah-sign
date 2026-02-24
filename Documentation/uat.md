@@ -8,13 +8,13 @@
 
 | Feature | Priority | Iteration | Client Facing (Y/N) |
 |---------|----------|-----------|---------------------|
-|Feature1|----------|-----------|---------------------|
+|UploadDocument|----------|-----------|---------------------|
 
 ---
 
 # 2. Acceptance Scenarios
 
-## Feature: Feature1 [Write down a more explanatory name for the feature]
+## Feature: Upload Document
 
 ### Scenario 1: Happy Path
 **Given:**
