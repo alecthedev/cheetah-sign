@@ -8,7 +8,7 @@
 
 | Feature | Priority | Iteration | Client Facing (Y/N) |
 |---------|----------|-----------|---------------------|
-|UploadDocument|----------|-----------|---------------------|
+|UploadDocument|Medium|0|Y|
 
 ---
 
