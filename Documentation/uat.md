@@ -17,15 +17,15 @@
 ## Feature: Upload Document
 
 ### Scenario 1: Happy Path
-**Given:**
+**Given:** Given a admin user uploads a document
 
-**When:**
+**When:** When you want to upload it
 
-**Then:**
+**Then:** Then the file is uploaded to the database
 
-**Status:** (Not Tested / Internal Passed / Client Accepted)
+**Status:** Client Accepted
 
-**Evidence:** (link to PR, test file, video, screenshot)
+**Evidence:** UploadDocumentTest.cs
 
 ### Scenario 2: Error Handling
 **Given:**
