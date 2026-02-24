@@ -8,7 +8,7 @@
 
 | Feature | Priority | Iteration | Client Facing (Y/N) |
 |---------|----------|-----------|---------------------|
-|UploadDocument|Medium|0/1|Y|
+|DocumentUpload|Medium|0/1|Y|
 |DocumentSigning|High|0/1/2/3/4|Y|
 |DocumentDownload|Low|0/4|Y|
 
@@ -16,7 +16,7 @@
 
 # 2. Acceptance Scenarios
 
-## Feature: Upload Document
+## Feature: Document Upload
 
 ### Scenario 1: Happy Path
 **Given:** Given a admin user uploads a document that is system accepted
