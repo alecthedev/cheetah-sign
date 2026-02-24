@@ -9,6 +9,7 @@
 | Feature | Priority | Iteration | Client Facing (Y/N) |
 |---------|----------|-----------|---------------------|
 |UploadDocument|Medium|0|Y|
+|DocumentSigning|High|0|Y|
 
 ---
 
@@ -43,7 +44,34 @@
 
 ---
 
-## Feature: [Feature Name]
+## Feature: Document Signing
+
+### Scenario 1: Happy Path
+**Given:** Given a signing user and a document with fields to sign
+
+**When:** When they recieve a valid job
+
+**Then:** Then the user is able to fill the fields with valid data
+
+**Status:** Client Accepted
+
+**Evidence:** document-signing.test.ts
+
+### Scenario 2: Error Handling
+**Given:**
+
+**When:**
+
+**Then:**
+
+**Status:**
+
+**Evidence:**
+
+### Scenario 3: Edge Case
+...
+
+---
 
 # 3. Client UAT Log
 
