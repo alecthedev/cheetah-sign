@@ -80,11 +80,11 @@ Vue follows a component-based architecture. So, everything we make on the fronte
 
 Another piece of the frontend puzzle are the API calls that are made to talk to our backend. The way this is done falls into our 'sdk' folder in the webclient directory. Each of the classes located in these 'client' files contain a variety of asynchronous methods that we can call in our Vue components. If they're HTTP GET requests, they just contain the endpoint to talk to the backend. If they're an HTTP POST request, they also will contain a body to be sent. For example, if you were sending a file to the backend, you would define a body of Form Data that contains your file. It would then be sent with your POST request and the backend will receieve it. Once the backend has it you could manipulate the file or even save it to the database.
 
-### Editing the Backend (Endpoints + Endpoint Services)
+### Editing the Backend (Endpoints and Services)
 
-Everything relating to the backend will be found in the Cheetah.Sign.Api directory. Primarily, you will be editing the files within the 'Endpoints' and 'endpoint-services' directories, where the HTTP POST and GET requests will be sent.
+Everything relating to the backend will be found in the Cheetah.Sign.Api directory. The API follows a clear flow: **HTTP request → Endpoint → interface (injected) → Service implementation → DbContext or external APIs → response.** Endpoints (in `Endpoints/*.cs`) define routes and do minimal work—validate input, call a **service** via its **interface**, return the result. Services (in `Services/`) hold business and data-access logic; each implements an interface in `Interfaces/` and is registered in `Program.cs` as scoped so the container injects it when an endpoint requests it.
 
-Use this directory to edit the current endpoints or create new files with new endpoints. With the creation of new endpoints, they must be defined in the 'Program.cs' file. A basic example shows us making a method 'AddEditDocumentEndpoints' with a POST request contained. This POST request contains an endpoint that cooresponds to one of the endpoints defined in our 'client' TypeScript file's async methods mentioned earlier. This POST request has a response it returns and it calls an endpoint service to save the coordinates to the database.
+You will primarily edit files in the `Endpoints` and `Services` directories. New endpoints must be registered in `Program.cs` (e.g. `app.AddEditDocumentEndpoints()`). A typical pattern: an endpoint method like `AddEditDocumentEndpoints` registers a POST route that corresponds to one of the SDK async methods in the web client; the route handler receives the relevant service interface (e.g. `ICoordinateService`) and calls it to perform the work (e.g. save coordinates).
 
 ![EndpointsExample](./images/EndpointsExample.png)
 ![EndpointsExample](./images/AddEndpoints.png)
@@ -98,6 +98,26 @@ your database tables and fields, and it must correlate with the actual database 
 
 To actually perform database operations, we use [Microsoft Entity Framework](https://learn.microsoft.com/en-us/aspnet/entity-framework) - an object-relational mapper. Entity Framework provides a seamless and efficient way to interact with a database by allowing you to work with them using C# objects. It works directly with the AppDbContext we mentioned earlier. These operations can be found in our 'Endpoints' directory.
 
+## Email (required to send)
+
+The API registers **SmtpEmailSender** only; there is no no-op or fallback when config is missing. Email config is read from **appsettings**, **user secrets** (when running locally), or **environment variables** (when running in Docker). **To send email** (e.g. signing invites, final-document emails), all of the following must be set; otherwise the first send will throw `InvalidOperationException` with a message like "Email configuration missing: {key}."
+
+**Running with Docker (e.g. `docker compose up`):**
+
+- The repo contains **`.env.example`** only. Each developer **creates a local `.env`** (copy from `.env.example`) with SMTP credentials and **does not commit `.env`**. User secrets are not available inside the container, so the sign-api container gets email config from this `.env` file.
+- Put `.env` in the same directory as `docker-compose.yml` (e.g. `bsu.cheetah.sign.2025/`), then set the values. Use **double underscore** in variable names (ASP.NET Core maps `Email__SmtpHost` to `Email:SmtpHost`):
+  - `Email__SmtpHost` (e.g. `smtp.gmail.com`)
+  - `Email__SmtpPort` (e.g. `587`)
+  - `Email__FromAddress`, `Email__FromName`, `Email__UserName`, `Email__Password`
+- Docker Compose reads `.env` and passes these into the container. Do not commit `.env` (it is in `.gitignore`).
+
+**Running locally (e.g. `dotnet run` from Cheetah.Sign.Api):**
+
+- Use **user secrets** so credentials stay off disk: from the API project directory, run e.g. `dotnet user-secrets set "Email:SmtpHost" "smtp.gmail.com"` (and the other keys: `Email:SmtpPort`, `Email:FromAddress`, `Email:FromName`, `Email:UserName`, `Email:Password`). User secrets are loaded automatically in Development.
+
+
+**Behavior:** The app always uses `SmtpEmailSender`. If any required key (`Email:SmtpHost`, `Email:FromAddress`, `Email:UserName`, `Email:Password`) is missing when a send is attempted (e.g. creating a job that triggers a signing invite), the app throws. There is no conditional no-op sender; `NoOpEmailSender` exists only in unit tests. To run without sending email you must avoid flows that trigger send (e.g. don't create jobs that email); optional no-op or startup warning will be added later.
+
 ## Accessing the Application & How to Test
 
 Once you have Docker Desktop running the containers for the API, Postgres, and the web client,
@@ -109,7 +129,7 @@ table populates with your file, your environment is set up correctly. You could 
 
 ## Unit & Integration Testing
 
-Cheetah Sign is being tested with both unit tests and integration tests ([read about the difference between these two here](https://circleci.com/blog/unit-testing-vs-integration-testing/)). For the frontend we are using [Vitest](https://vitest.dev/) with [Mock Service Worker](https://mswjs.io/), and on the backend we are using [Xunit](https://xunit.net/) with a mock PostgreSQL database. Both of these have test coverage tools we use as well. The frontend unit and integration tests are found in their 'unit-tests' and 'integration-tests' directories respectively. The backends unit tests are contained in the 'UnitTests' directory, and the mock PostgreSQL databases lie in the 'Contexts' directory. We have two mock databases - one for the backend unit tests and another for the integration tests that start at the frontend.
+Cheetah Sign is being tested with both unit tests and integration tests ([read about the difference between these two here](https://circleci.com/blog/unit-testing-vs-integration-testing/)). For the frontend we are using [Vitest](https://vitest.dev/) with [Mock Service Worker](https://mswjs.io/), and on the backend we are using [Xunit](https://xunit.net/) with a mock PostgreSQL database. Both of these have test coverage tools we use as well. The frontend unit and integration tests are found in their 'unit-tests' and 'integration-tests' directories respectively. The backend unit tests are in the API's `UnitTests/` directory; tests use **services via their interfaces** (resolved from the DI scope or constructed with mocks), not static handler classes. The mock PostgreSQL databases live in `Contexts/` (e.g. `PgDataFixture` for unit tests, `PgDataFixtureIntegration` for integration tests).
 
 Here are the different commands to run tests. You either have to be in the webclient or API directory for these to run:
 
@@ -164,29 +184,39 @@ The Vitest integration test files are a little bit more complicated than the nor
 
 ### Backend (Cheetah.Sign.Api)
 
-- Endpoints
-  <br>
-  Our Endpoints folder contains the files and classes that receive the HTTP requests from the frontend (see SDK folder), does a database operation, and returns a response. This file also contains our [Data Transfer Objects (DTO)](https://learn.microsoft.com/en-us/aspnet/web-api/overview/data/using-web-api-with-entity-framework/part-5), these are used to transfer data between the frontend and backend. Each endpoint calls an endpoint service file to carry out various actions.
+| Layer | Location | Description |
+|-------|----------|-------------|
+| **Interfaces** | `Interfaces/*.cs` | Service contracts (e.g. `IJobService`, `IPacketService`, `IDocumentConverter`). Endpoints depend on these; implementations live in `Services/` and are registered in `Program.cs` as scoped. |
+| **Services** | `Services/*.cs` | Implementations of the interfaces: business logic, data access, and helpers (e.g. `JobService`, `PacketService`, `UploadDocumentService`, `CoordinateService`, `DocumentEditor`, `LibreOfficeDocumentConverter`). Called by endpoints via dependency injection. |
+| **Endpoints** | `Endpoints/*.cs` | Classes that define HTTP routes (e.g. `FileJobberEndpoints`, `DocumentQueryEndpoints`, `DocumentUploadEndpoints`). Each receives requests from the frontend (see SDK), calls one or more services via their interfaces, and returns responses. DTOs are used to transfer data between frontend and backend. |
+| **Data** | `Contexts/AppDbContext.cs` | EF Core DbContext; bridge between the application and the PostgreSQL database. Services use it for persistence. No separate repository layer; services use `AppDbContext` directly. |
 
-- Endpoint-Services
-  <br>
-  These files are called by all of the Endpoints files. Each of these contain a class and methods that usually perform a service for the endpoints. For example, when uploading a document, the backend receives it in the 'UploadDocumentModule.cs' file at the /upload endpoint and calls 'UploadDocument.cs'. This file acts as a service and converts the uploaded document to a byte array format so it can be saved to the database. UploadDocument.cs returns the file in byte array format back to the /upload in 'UploadDocumentModule' and it then carries out the database operation to save the file.
 
-- Edit-Documents
-  <br>
-  The Edit Document folder is a very important part of the application. This is where the text boxes are added when a document is built and rendered, and where recipient input is added when a document is signed. These two main methods use [iText Core](https://itextpdf.com/products/itext-core), a C# library used for creating and manipulating PDFs.
+- **PDF and coordinates:** Text boxes for document building and signing, and PDF rendering, are implemented in `Services/` (e.g. `DocumentEditor`, `CoordinateConverter`, `CoordinateService`) using [iText Core](https://itextpdf.com/products/itext-core). `EditDocumentEndpoints` and `JobSignerEndpoints` call `ICoordinateService` for coordinate save and PDF-with-boxes rendering.
 
-- Migrations
+- **Migrations**
   <br>
-  The Migrations folder contains our migrations that come from our Microsoft Entity Framework setup. Migrations represent changes to your database schema over time and provide a way to apply or revert those changes. Think of them like a version control for your database structure.
+  The Migrations folder contains EF Core migrations: version-controlled schema changes. They are applied automatically on startup (see `Program.cs`).
 
-- Contexts
+- **Contexts**
   <br>
-  This is another piece of our Microsoft Entity Framework setup. This folder contains our AppDbContext, which is a class that serves as a bridge between your application and the database. It is responsible for managing your database tables and fields. This also contains the mock PostgreSQL databases that are used in backend unit testing and integration testing.
+  Contains `AppDbContext` (database bridge) and the mock PostgreSQL fixtures (`PgDataFixture.cs` for unit tests, `PgDataFixtureIntegration.cs` for integration tests).
 
-- interfaces
-  <br>
-  This directory contains interfaces for the backend. Implementations include the DocumentConverter class, which relies on an external dependency to convert documents to PDF. Interfaces allow us to better maintain our code, should dependencies ever need to change.
+**Interfaces and implementations (all registered in `Program.cs` as scoped):**
+
+| Interface | Implementation | Role |
+|-----------|----------------|------|
+| `IAuditTrailService` | `ScopedAuditTrailService` | Records job status changes; caller saves context. |
+| `IEmailSender` | `SmtpEmailSender` | Sends signing-invite and final-document emails. |
+| `IJobService` | `JobService` | Jobs: create, sign, delete, packet download, list, get for signing. |
+| `IPacketService` | `PacketService` | Packets: CRUD, add/remove/reorder documents. |
+| `IClientProfileService` | `ClientProfileService` | Client profiles: CRUD, get last client. |
+| `IDocumentQueryService` | `DocumentQueryService` | Document list, file bytes, metadata (file/document queries). |
+| `IDocumentConverter` | `LibreOfficeDocumentConverter` | Converts uploaded files (e.g. docx) to internal format. |
+| `IUploadDocumentService` | `UploadDocumentService` | File upload and conversion. |
+| `ICoordinateService` | `CoordinateService` | Save/retrieve coordinates; render PDFs with signing boxes. |
+
+When adding new behavior: extend the appropriate interface and implementation (e.g. jobs → `IJobService`/`JobService`); keep endpoints thin (validate, call service, return).
 
 ### Important Files
 
@@ -196,8 +226,7 @@ The Vitest integration test files are a little bit more complicated than the nor
 
 - Program.cs
   <br>
-  These files are where we configure our connections to our database, enviroment variables, our HTTP request pipeline,
-  automatic database setup, and define our endpoint methods, etc.
+  Configures database connections, environment variables, HTTP pipeline, and automatic database migration. All **scoped services** (the nine interfaces above) and **endpoint extensions** are registered here in a fixed order: e.g. `AddFileDeleterEndpoints`, `AddDocumentUploadEndpoints`, `AddDocumentQueryEndpoints`, `AddFileJobberEndpoints`, `AddPacketEndpoints`, `AddJobSignerEndpoints`, `AddEditDocumentEndpoints`, `AddClientProfileEndpoints`, `AddMockEndpoints`, `AddJobViewEndpoints`.
 
 - PgDataFixture.cs & PgDataFixtureIntegration.cs
   <br>
