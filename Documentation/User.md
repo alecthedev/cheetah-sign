@@ -8,8 +8,10 @@ you will be able to:
 - Upload Documents
 - View Uploaded Documents
 - Build Documents for Signing
+- Combine Documents into a Packet to Sign
 - Add Client Profiles
 - Send Documents to Clients
+- Send Packets to Clients
 - View the Status of Sent Documents
 - View the Audit Trail of Sent Documents
 - View and Download Signed Documents
@@ -61,7 +63,7 @@ Once here, you'll be able to view the Cheetah Document Builder! The Document Bui
 
 Additonally, you'll be given a button to allow you to swap between which client signs what fields in the event that two clients are signing the same paperwork.
 
-![DocumentBuilderExample](./images/documentBuilderExample.png)
+![DocumentBuilderExample](./images/PacketBuilder.png)
 ![BuilderInputsExample](./images/multiBuildOne.png)
 ![BuilderInputsExample2](./images/multiBuildTwo.png)
 
@@ -134,13 +136,15 @@ Once an admin decides to send a built document to a client, the client will rece
 
 ![emailedDoc](./images/EmailedDocument.png)
 
-
 ### Signing Documents
+
 After following this link, clients will be prompted to confirm the information that will autofill the document fields. Any edit made to these fields will be reflected in the rest of the document. Pressing cancel on this popup will fill all the fields with the information initially loaded. Press confirm after changing a field value to actually close the box and update the fields with your new values.
+
+![packet-demo](./images/reviewAndSign.png)
 
 ![autofill-demo](./images/autofill-demo.gif)
 
-Next, clients will be presented with the built document containing all text fields to input the requested information. To fill out the document, they will use a stepper component that contains text boxes labeled with the desired input. 
+Next, clients will be presented with the built document containing all text fields to input the requested information. To fill out the document, they will use a stepper component that contains text boxes labeled with the desired input.
 
 When signing a document, the address field is split into multiple input boxes instead of one single text field. This makes it easier for clients to enter and review their address information. Clients are shown separate fields for address line 1, address line 2 (optional), city, state, and zip code. As the client fills out these fields, the address is automatically combined and applied to the document.
 
@@ -149,7 +153,6 @@ When signing a document, the address field is split into multiple input boxes in
 When signing a document, clients can choose how they want to provide their signature. They may either type their name or draw their signature directly using their mouse or trackpad.If the draw option is selected, a signature canvas is displayed. Clients can clear and redraw their signature as needed before saving it. Once saved, the drawn signature is applied to the document and included in the final signed file.
 
 ![Draw-Signature-demo](images/DrawSignature-ezgif.com-video-to-gif-converter.gif)
-
 
 On the last step they will see a 'Finish' button. After clicking this button, a modal will appear telling them 'Thanks for signing!' with an option to download their signed document. Since the signing is complete, Admins should now be able to view and download the signed document!
 
