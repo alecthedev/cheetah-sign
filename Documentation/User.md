@@ -63,6 +63,8 @@ Once here, you'll be able to view the Cheetah Document Builder! The Document Bui
 
 Additonally, you'll be given a button to allow you to swap between which client signs what fields in the event that two clients are signing the same paperwork.
 
+Lastly, we have implemented a way to combine documents into a packet. This button will allow you to open a modal that allows you to select packets to edit or select documents to bundle together.
+
 ![DocumentBuilderExample](./images/PacketBuilder.png)
 ![BuilderInputsExample](./images/multiBuildOne.png)
 ![BuilderInputsExample2](./images/multiBuildTwo.png)
@@ -138,7 +140,7 @@ Once an admin decides to send a built document to a client, the client will rece
 
 ### Signing Documents
 
-After following this link, clients will be prompted to confirm the information that will autofill the document fields. Any edit made to these fields will be reflected in the rest of the document. Pressing cancel on this popup will fill all the fields with the information initially loaded. Press confirm after changing a field value to actually close the box and update the fields with your new values.
+After following this link, clients will be met with a landing page that lists the documeents they have to sign and the signing status of each document. When clicking the button to sign a document, clients will be prompted to confirm the information that will autofill the document fields. Any edit made to these fields will be reflected in the rest of the document. Pressing cancel on this popup will fill all the fields with the information initially loaded. Press confirm after changing a field value to actually close the box and update the fields with your new values.
 
 ![packet-demo](./images/reviewAndSign.png)
 
@@ -157,3 +159,7 @@ When signing a document, clients can choose how they want to provide their signa
 On the last step they will see a 'Finish' button. After clicking this button, a modal will appear telling them 'Thanks for signing!' with an option to download their signed document. Since the signing is complete, Admins should now be able to view and download the signed document!
 
 ![SigningExample](images/FInal-ezgif.com-video-to-gif-converter.gif)
+
+If you elect not to download the file after you've finished. When all parties are done signing the document or packet will be emailed out to all clients.
+
+![finalEmailExample](images/finalEmailExample.png)
