@@ -37,10 +37,9 @@ In order to run the application, you will need the following installed:
   with the Docker Compose Extension)
 
 - Frontend:
-
   - [Node.js 20](https://nodejs.org/en)
   - [Vue 3](https://vuejs.org/)
-  - [Vite 5](https://vite.dev/)
+  - [Vite 6](https://vite.dev/)
 
 - Backend:
   - [.NET 8 SDK](https://dotnet.microsoft.com/en-us/)
@@ -115,7 +114,6 @@ The API registers **SmtpEmailSender** only; there is no no-op or fallback when c
 
 - Use **user secrets** so credentials stay off disk: from the API project directory, run e.g. `dotnet user-secrets set "Email:SmtpHost" "smtp.gmail.com"` (and the other keys: `Email:SmtpPort`, `Email:FromAddress`, `Email:FromName`, `Email:UserName`, `Email:Password`). User secrets are loaded automatically in Development.
 
-
 **Behavior:** The app always uses `SmtpEmailSender`. If any required key (`Email:SmtpHost`, `Email:FromAddress`, `Email:UserName`, `Email:Password`) is missing when a send is attempted (e.g. creating a job that triggers a signing invite), the app throws. There is no conditional no-op sender; `NoOpEmailSender` exists only in unit tests. To run without sending email you must avoid flows that trigger send (e.g. don't create jobs that email); optional no-op or startup warning will be added later.
 
 ## Accessing the Application & How to Test
@@ -141,14 +139,14 @@ Frontend (webclient directory):
 
 Backend (API directory):
 
-- Backend unit tests (no coverage): 
-  - run `./run-backend-tests.sh` 
-- Backend test coverage: 
+- Backend unit tests (no coverage):
+  - run `./run-backend-tests.sh`
+- Backend test coverage:
   - run `./run-backend-coverage.sh` from the API directory.
   - This runs unit tests with [Coverlet](https://github.com/coverlet-coverage/coverlet), then generates an HTML report in the 'coveragereport' folder. You need the ReportGenerator global tool: `dotnet tool install -g dotnet-reportgenerator-globaltool`
   - To run coverage and report steps manually:
-    - `dotnet test UnitTests/UnitTests.csproj --collect:"XPlat Code Coverage"` to collect coverage (output: UnitTests/TestResults/*/coverage.cobertura.xml)
-     - `reportgenerator -reports:"UnitTests/TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html` to generate the HTML report
+    - `dotnet test UnitTests/UnitTests.csproj --collect:"XPlat Code Coverage"` to collect coverage (output: UnitTests/TestResults/\*/coverage.cobertura.xml)
+    - `reportgenerator -reports:"UnitTests/TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html` to generate the HTML report
 
 You should be able to open the newly created index.html report in the 'coveragereport' folder.
 
@@ -184,13 +182,12 @@ The Vitest integration test files are a little bit more complicated than the nor
 
 ### Backend (Cheetah.Sign.Api)
 
-| Layer | Location | Description |
-|-------|----------|-------------|
-| **Interfaces** | `Interfaces/*.cs` | Service contracts (e.g. `IJobService`, `IPacketService`, `IDocumentConverter`). Endpoints depend on these; implementations live in `Services/` and are registered in `Program.cs` as scoped. |
-| **Services** | `Services/*.cs` | Implementations of the interfaces: business logic, data access, and helpers (e.g. `JobService`, `PacketService`, `UploadDocumentService`, `CoordinateService`, `DocumentEditor`, `LibreOfficeDocumentConverter`). Called by endpoints via dependency injection. |
-| **Endpoints** | `Endpoints/*.cs` | Classes that define HTTP routes (e.g. `FileJobberEndpoints`, `DocumentQueryEndpoints`, `DocumentUploadEndpoints`). Each receives requests from the frontend (see SDK), calls one or more services via their interfaces, and returns responses. DTOs are used to transfer data between frontend and backend. |
-| **Data** | `Contexts/AppDbContext.cs` | EF Core DbContext; bridge between the application and the PostgreSQL database. Services use it for persistence. No separate repository layer; services use `AppDbContext` directly. |
-
+| Layer          | Location                   | Description                                                                                                                                                                                                                                                                                                 |
+| -------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Interfaces** | `Interfaces/*.cs`          | Service contracts (e.g. `IJobService`, `IPacketService`, `IDocumentConverter`). Endpoints depend on these; implementations live in `Services/` and are registered in `Program.cs` as scoped.                                                                                                                |
+| **Services**   | `Services/*.cs`            | Implementations of the interfaces: business logic, data access, and helpers (e.g. `JobService`, `PacketService`, `UploadDocumentService`, `CoordinateService`, `DocumentEditor`, `LibreOfficeDocumentConverter`). Called by endpoints via dependency injection.                                             |
+| **Endpoints**  | `Endpoints/*.cs`           | Classes that define HTTP routes (e.g. `FileJobberEndpoints`, `DocumentQueryEndpoints`, `DocumentUploadEndpoints`). Each receives requests from the frontend (see SDK), calls one or more services via their interfaces, and returns responses. DTOs are used to transfer data between frontend and backend. |
+| **Data**       | `Contexts/AppDbContext.cs` | EF Core DbContext; bridge between the application and the PostgreSQL database. Services use it for persistence. No separate repository layer; services use `AppDbContext` directly.                                                                                                                         |
 
 - **PDF and coordinates:** Text boxes for document building and signing, and PDF rendering, are implemented in `Services/` (e.g. `DocumentEditor`, `CoordinateConverter`, `CoordinateService`) using [iText Core](https://itextpdf.com/products/itext-core). `EditDocumentEndpoints` and `JobSignerEndpoints` call `ICoordinateService` for coordinate save and PDF-with-boxes rendering.
 
@@ -204,17 +201,17 @@ The Vitest integration test files are a little bit more complicated than the nor
 
 **Interfaces and implementations (all registered in `Program.cs` as scoped):**
 
-| Interface | Implementation | Role |
-|-----------|----------------|------|
-| `IAuditTrailService` | `ScopedAuditTrailService` | Records job status changes; caller saves context. |
-| `IEmailSender` | `SmtpEmailSender` | Sends signing-invite and final-document emails. |
-| `IJobService` | `JobService` | Jobs: create, sign, delete, packet download, list, get for signing. |
-| `IPacketService` | `PacketService` | Packets: CRUD, add/remove/reorder documents. |
-| `IClientProfileService` | `ClientProfileService` | Client profiles: CRUD, get last client. |
-| `IDocumentQueryService` | `DocumentQueryService` | Document list, file bytes, metadata (file/document queries). |
-| `IDocumentConverter` | `LibreOfficeDocumentConverter` | Converts uploaded files (e.g. docx) to internal format. |
-| `IUploadDocumentService` | `UploadDocumentService` | File upload and conversion. |
-| `ICoordinateService` | `CoordinateService` | Save/retrieve coordinates; render PDFs with signing boxes. |
+| Interface                | Implementation                 | Role                                                                |
+| ------------------------ | ------------------------------ | ------------------------------------------------------------------- |
+| `IAuditTrailService`     | `ScopedAuditTrailService`      | Records job status changes; caller saves context.                   |
+| `IEmailSender`           | `SmtpEmailSender`              | Sends signing-invite and final-document emails.                     |
+| `IJobService`            | `JobService`                   | Jobs: create, sign, delete, packet download, list, get for signing. |
+| `IPacketService`         | `PacketService`                | Packets: CRUD, add/remove/reorder documents.                        |
+| `IClientProfileService`  | `ClientProfileService`         | Client profiles: CRUD, get last client.                             |
+| `IDocumentQueryService`  | `DocumentQueryService`         | Document list, file bytes, metadata (file/document queries).        |
+| `IDocumentConverter`     | `LibreOfficeDocumentConverter` | Converts uploaded files (e.g. docx) to internal format.             |
+| `IUploadDocumentService` | `UploadDocumentService`        | File upload and conversion.                                         |
+| `ICoordinateService`     | `CoordinateService`            | Save/retrieve coordinates; render PDFs with signing boxes.          |
 
 When adding new behavior: extend the appropriate interface and implementation (e.g. jobs → `IJobService`/`JobService`); keep endpoints thin (validate, call service, return).
 
