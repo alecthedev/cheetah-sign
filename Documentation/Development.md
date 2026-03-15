@@ -5,7 +5,20 @@
 This project is built with Vue.js + TypeScript, .NET w/ C#, and PostgreSQL. It has been fully containerized with Docker. You can run the environment with a single command using 'docker compose up', or right-clicking the Docker Compose file with the VS Code Docker Extension. This documentation will go over the replication of the development
 environment using Docker.
 
-If any problems occur during this process you can email gabe.chandler@trustasc.com for assistance.
+If any problems occur during this process you can email gabe.chandler@trustasc.com or kade.dentel@trustasc.com for assistance.
+
+## High-level system architecture
+
+Cheetah Sign is split into four main parts:
+
+| Module | Role | How it connects |
+|--------|------|-----------------|
+| **Frontend (webclient)** | Vue 3 + Vite app; admin UI (upload, document builder, send jobs, client list) and signer-facing signing page. | Runs in the browser; calls the API over HTTP (see SDK in `cheetahsign-webclient/src/sdk/`). |
+| **API (Cheetah.Sign.Api)** | .NET 8 ASP.NET Core app; REST endpoints, business logic, PDF handling, email. | Serves HTTP on port 8080 (or 6001 in test compose); uses PostgreSQL for persistence; sends email via SMTP when configured. |
+| **Database (PostgreSQL)** | Stores documents, packets, jobs, signers, clients, audit. | API connects via connection string (env or appsettings); migrations apply on startup. |
+| **Docker** | Orchestrates containers: sign-pgdata (Postgres), sign-api (API), sign-pgadmin (optional), webclient. | `docker compose up` runs all four; `docker-compose-tests.yml` runs a test stack (mock DB, API on 6001) for frontend integration tests. |
+
+**Major components for onboarding:** Webclient (Vue components, SDK, router); API (Endpoints, Services, Interfaces, Program.cs); Postgres (tables via AppDbContext/migrations); pgAdmin (optional, for inspecting the DB). See "Project & Folder Structure" and "Interfaces and implementations" below for details.
 
 ## Prerequisites
 
@@ -129,26 +142,34 @@ table populates with your file, your environment is set up correctly. You could 
 
 Cheetah Sign is being tested with both unit tests and integration tests ([read about the difference between these two here](https://circleci.com/blog/unit-testing-vs-integration-testing/)). For the frontend we are using [Vitest](https://vitest.dev/) with [Mock Service Worker](https://mswjs.io/), and on the backend we are using [Xunit](https://xunit.net/) with a mock PostgreSQL database. Both of these have test coverage tools we use as well. The frontend unit and integration tests are found in their 'unit-tests' and 'integration-tests' directories respectively. The backend unit tests are in the API's `UnitTests/` directory; tests use **services via their interfaces** (resolved from the DI scope or constructed with mocks), not static handler classes. The mock PostgreSQL databases live in `Contexts/` (e.g. `PgDataFixture` for unit tests, `PgDataFixtureIntegration` for integration tests).
 
-Here are the different commands to run tests. You either have to be in the webclient or API directory for these to run:
+**Quick reference (run from webclient or API directory as indicated):**
+
+| Context | Command | Purpose |
+|---------|---------|---------|
+| Webclient | `npm test` | Frontend unit tests |
+| Webclient | `npm run coverage` | Frontend test coverage |
+| Webclient | `npm run integration` | Integration tests (requires `docker compose -f docker-compose-tests.yml up`) |
+| API | `./run-backend-tests.sh` | Backend unit tests, no coverage |
+| API | `./run-backend-coverage.sh` (or `.ps1` on Windows) | Backend unit tests + coverage report (terminal summary + HTML) |
 
 Frontend (webclient directory):
 
-- 'npm test' for frontend unit tests
-- 'npm run coverage' for frontend test coverage
-- 'npm run integration' for integration tests
+- `npm test` for frontend unit tests
+- `npm run coverage` for frontend test coverage
+- `npm run integration` for integration tests
 
 Backend (API directory):
 
 - Backend unit tests (no coverage):
-  - run `./run-backend-tests.sh`
+  - Run `./run-backend-tests.sh` from the API directory (on Windows you can use the same script in a Git Bash or WSL shell, or run `dotnet test UnitTests/UnitTests.csproj` directly).
 - Backend test coverage:
-  - run `./run-backend-coverage.sh` from the API directory.
-  - This runs unit tests with [Coverlet](https://github.com/coverlet-coverage/coverlet), then generates an HTML report in the 'coveragereport' folder. You need the ReportGenerator global tool: `dotnet tool install -g dotnet-reportgenerator-globaltool`
+  - Linux/macOS: run `./run-backend-coverage.sh` from the API directory.
+  - Windows (PowerShell): run `./run-backend-coverage.ps1` from the API directory.
+  - Both scripts run unit tests with [Coverlet](https://github.com/coverlet-coverage/coverlet), then generate an HTML report in the `coveragereport/` folder and a **text summary** (ReportGenerator `TextSummary`) that is **printed to the terminal**. You need the ReportGenerator global tool: `dotnet tool install -g dotnet-reportgenerator-globaltool`.
+  - Open `coveragereport/index.html` for the full report; the terminal output shows line/branch coverage at a glance.
   - To run coverage and report steps manually:
     - `dotnet test UnitTests/UnitTests.csproj --collect:"XPlat Code Coverage"` to collect coverage (output: UnitTests/TestResults/\*/coverage.cobertura.xml)
-    - `reportgenerator -reports:"UnitTests/TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html` to generate the HTML report
-
-You should be able to open the newly created index.html report in the 'coveragereport' folder.
+    - `reportgenerator -reports:"UnitTests/TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html;TextSummary` to generate the HTML report and text summary.
 
 ### Running Integration Tests
 
@@ -158,7 +179,6 @@ If you remember earlier, we mentioned that this project contains two [Docker Com
 
 The Vitest integration test files are a little bit more complicated than the normal unit tests. Essentially, we are calling an endpoint before every integration is ran. This endpoint clears the database (to always start the tests with a fresh mock database) and saves one mock document to the mock database. The one document being in the database is crucial for the tests to actually test how our frontend and backend interact.
 
-![integrationTest](./images/integrationTest.png)
 
 ## Project & Folder Structure
 
@@ -211,7 +231,8 @@ The Vitest integration test files are a little bit more complicated than the nor
 | `IDocumentQueryService`  | `DocumentQueryService`         | Document list, file bytes, metadata (file/document queries).        |
 | `IDocumentConverter`     | `LibreOfficeDocumentConverter` | Converts uploaded files (e.g. docx) to internal format.             |
 | `IUploadDocumentService` | `UploadDocumentService`        | File upload and conversion.                                         |
-| `ICoordinateService`     | `CoordinateService`            | Save/retrieve coordinates; render PDFs with signing boxes.          |
+| `ICoordinateService`     | `CoordinateService`            | Save/retrieve coordinates; render PDFs with signing boxes.            |
+| `IFieldValidationService` | `FieldValidationService`       | Field/signer validation presets; used by JobService on sign.         |
 
 When adding new behavior: extend the appropriate interface and implementation (e.g. jobs → `IJobService`/`JobService`); keep endpoints thin (validate, call service, return).
 
@@ -223,7 +244,7 @@ When adding new behavior: extend the appropriate interface and implementation (e
 
 - Program.cs
   <br>
-  Configures database connections, environment variables, HTTP pipeline, and automatic database migration. All **scoped services** (the nine interfaces above) and **endpoint extensions** are registered here in a fixed order: e.g. `AddFileDeleterEndpoints`, `AddDocumentUploadEndpoints`, `AddDocumentQueryEndpoints`, `AddFileJobberEndpoints`, `AddPacketEndpoints`, `AddJobSignerEndpoints`, `AddEditDocumentEndpoints`, `AddClientProfileEndpoints`, `AddMockEndpoints`, `AddJobViewEndpoints`.
+  Configures database connections, environment variables, HTTP pipeline, and automatic database migration. All **scoped services** (the ten interfaces above) and **endpoint extensions** are registered here in a fixed order: e.g. `AddFileDeleterEndpoints`, `AddDocumentUploadEndpoints`, `AddDocumentQueryEndpoints`, `AddFileJobberEndpoints`, `AddPacketEndpoints`, `AddJobSignerEndpoints`, `AddEditDocumentEndpoints`, `AddClientProfileEndpoints`, `AddMockEndpoints`, `AddJobViewEndpoints`.
 
 - PgDataFixture.cs & PgDataFixtureIntegration.cs
   <br>
