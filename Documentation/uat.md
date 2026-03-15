@@ -27,7 +27,7 @@
 
 **Status:** Client Accepted
 
-**Evidence:** UploadDocumentTest.cs, DocumentConverterTest.cs
+**Evidence:** UploadDocumentTest.cs, DocumentConverterTest.cs. A doc, docx, xslx, or pdf document is uploaded, and converted if needed. Resulting doc is in system as pdf.
 
 ### Scenario 2: Error Handling
 **Given:**
@@ -56,7 +56,7 @@
 
 **Status:** Client Accepted
 
-**Evidence:** document-signing.test.ts
+**Evidence:** document-signing.test.ts. A client that receives a job can sign it by stepping through fields and filling them out. 
 
 ### Scenario 2: Error Handling
 **Given:**
@@ -85,7 +85,7 @@
 
 **Status:** Client Accepted
 
-**Evidence:** FileDeleterAndPacketDownloadTests.cs, EndpointTests.cs
+**Evidence:** FileDeleterAndPacketDownloadTests.cs, EndpointTests.cs. All clients receive an email of finished document(s) when everyone has signed.
 
 ### Scenario 2: Error Handling
 **Given:**
