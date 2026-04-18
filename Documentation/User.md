@@ -2,164 +2,288 @@
 
 ## Admin
 
-Admins are in control of most of the functionality for Cheetah Sign. You have access to the admin side of the website, where
-you will be able to:
+Admins manage document preparation, sending, and tracking in Cheetah Sign. On the admin side, you can:
 
-- Upload Documents
-- View Uploaded Documents
-- Build Documents for Signing
-- Combine Documents into a Packet to Sign
-- Add Client Profiles
-- Send Documents to Clients
-- Send Packets to Clients
-- View the Status of Sent Documents
-- View the Audit Trail of Sent Documents
-- View and Download Signed Documents
+- Upload documents
+- View uploaded documents
+- Build documents for signing
+- Combine documents into a packet
+- Add, edit, and delete client profiles
+- Send documents and packets to clients
+- View status of sent jobs
+- View audit trails
+- View and download signed files
+
+---
 
 ### Upload Documents
 
-In order to send a document to a client, you must first upload it. You can do this by clicking the upload button found at the
-top of the "My Documents" page.
-This button will take you to a
-modal pop-up with a browse files
-button. Click the button or upload icon to open up your file browser, and select the PDF file that you would like to upload. Cheetah Sign currently only supports pdf, doc, docx, and xslx files.
+To send a document to a client, you must upload it first.
+
+1. Go to the **Documents** page.
+2. Click the **Upload** button at the top of the page.
+3. In the upload modal, click the browse button or upload icon.
+4. Select your file and click **Upload**.
+
+Supported file types:
+
+- `.pdf`
+- `.doc`
+- `.docx`
+- `.xlsx`
+
+Maximum file size: **10MB**
 
 ![UploadForm](./images/UploadDocumentsButton.png)
 ![UploadModal](./images/UploadModal.png)
 
-After selecting your file, click the blue upload button. You should receieve a notification that the file has been uploaded to the server, and is ready to be built. The next step is to build this document for sending! You can either navigate to the Document Builder through the Toast notification, or click one of the two Document Builder buttons.
+After upload, you should see a confirmation notification that the file is ready to build.
+
 ![DocumentBuilderButton](./images/DocumentBuilderButton.png)
 ![DocumentUploadToast](./images/DocumentUploadToast.png)
 
-There is a 10MB file upload limit.
+---
 
 ### Document Conversion
 
-If you select a .doc, .docx, or .xlsx file it will be automatically converted to a .pdf file to use within the Cheetah Sign environment.
+If you upload a `.doc`, `.docx`, or `.xlsx` file, Cheetah Sign automatically converts it to `.pdf` for use in the signing flow.
+
+---
 
 ### After Uploading
 
-All uploaded files can be found in the "My Documents" section of the application and in the 'Documents' section of the Document Builder page. Each document is listed
-with the following attributes from left to right:
+All uploaded files appear in the **Documents** page and in the **Documents** tab inside **Document Builder**.
 
-- Document Name w/ a tag indicating if it has been built (Can filter alphabetically)
-- Build Template Button
-- Send Document Button
-- View Document Button
-- Delete Document Button
-- Upload Date
+Each document row includes:
 
-![UploadedDocumentsTable](./images/UpDocumentsTable.png)
+- Document name (sortable/filterable)
+- Build Template action
+- Send action
+- View action
+- Delete action
+- Upload date
+- Favorite action
 
-We will go though each of these core actions.
+![UploadedDocumentsTable](./images/uploadDocView.png)
 
-### Introducing Cheetah Build
+---
 
-Building a document with Cheetah Build allows you to place text boxes on a PDF, indicating where you would like the user to input their information.
-After you have uploaded a base document, navigate to the "Document Builder" tab in one of the three ways mentioned before.
+### Introducing Document Builder
 
-Once here, you'll be able to view the Cheetah Document Builder! The Document Builder contains two tabs - 'Edit' and
-'Documents'. Under 'Documents' you can select one of the documents you have previously uploaded and it will be rendered in the gray zone. Under 'Edit' you will be presented with the name of your document, the number of pages, and your options of input types.
+**Document Builder** lets you place signable/input fields on a document before sending.
 
-Additonally, you'll be given a button to allow you to swap between which client signs what fields in the event that two clients are signing the same paperwork.
+1. Open **Document Builder** from your upload confirmation or document actions.
+2. Use the **Documents** tab to select an uploaded file.
+3. Use the **Edit** tab to add and configure fields.
 
-Lastly, we have implemented a way to combine documents into a packet. This button will allow you to open a modal that allows you to select packets to edit or select documents to bundle together.
+In Document Builder, you can:
+
+- Add fields to define what recipients must fill out
+- Assign fields to specific signers
+- Configure packet content
+- Prepare documents for one or multiple recipients
 
 ![DocumentBuilderExample](./images/PacketBuilder.png)
 ![BuilderInputsExample](./images/multiBuildOne.png)
 ![BuilderInputsExample2](./images/multiBuildTwo.png)
 
-### Cheetah Build Drag and Drop
+---
 
-To build a document in Cheetah Build, we provided a drag and drop functionality to give admins flexibility in their building process. All you have to do is select a document you want to build, drag one of the input types you want, and drop it onto your rendered page. You will notice you also have an option to resize the width and height of your dropped input box - very flexible. And don't worry, if you make a mistake, you can reposition your dropped box or even undo/refresh them.
+### Drag-and-Drop Building
+
+To build a document:
+
+1. Select a document in **Document Builder**.
+2. Drag a field type from the field list.
+3. Drop it onto the rendered page.
+4. Resize or reposition as needed.
+
+You can adjust placement as you build and correct mistakes before sending.
 
 ![CheetahBuildGif](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXNocWZhN3RlZXNzMzN2cXgwd2kzNjZoZ2txNm5xYWc0dXNoY2o5ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/0XkX4HG0RXSMVIjweA/giphy.gif)
 
-### Recording a Client Profile
+---
 
-Before we want to send out built document, we might want to save a client we believe we will be using often. You are able to record the name, email, phone, and address of a client. This is useful to keep track of the information, as well as sending
-documents to the same recipient multiple times. In order to create a client profile, navigate to the "Clients" page and
-click the "Add Client" button.
+### Custom Fields
+
+Custom fields let admins define what information recipients must provide in a document.
+
+At a high level, custom fields are used to:
+
+- Capture required signer inputs in specific places
+- Standardize recurring inputs across documents
+- Apply preset validation rules where needed
+
+Use custom fields during document building to keep signed outputs complete and consistent.
+![CustomModal](./images/customFieldModal.png)
+
+---
+
+### Client Profiles (Create, Edit, Delete)
+
+Use the **Clients** page to manage client records.
+
+#### Add a client
+
+1. Go to **Clients**.
+2. Click **Add Client**.
+3. Enter client details and save.
 
 ![AddNewClient](./images/ClientButtonAdd.png)
 
-A modal should open where you are able to enter the client's information. When entered, the client will appear in the table,
-signalling that the client has been recorded. A recorded client can be deleted as well.
+#### Edit a client
+
+1. Go to **Clients**.
+2. Use the row action for the client you want to update.
+3. Edit any client profile fields (name, email, phone, address fields).
+4. Save changes.
+
+#### Delete a client
+
+1. Go to **Clients**.
+2. Use the row action for the client you want to remove.
+3. Confirm delete.
+
+Deleted clients are removed from the active client list.
+
+---
 
 ### Viewing Documents
 
-After uploading a document, you can select the view button on the home page to preview the document. Even better is that you can preview a document that you have just built using this feature. So, just to make sure you're happy with the built version, take a look at it before sending!
+Use the **View** action on the **Documents** page to preview uploaded or built documents before sending.
 
 ![viewBuilt](./images/ViewBuiltDocument.png)
 
+---
+
 ### Send Documents to Clients
 
-Finally the time has come - actually sending your built document to a recipient! Looking at the home page which contains your table of uploaded documents, you are able to create a "Job". A "Job" is an instance of a document that contains
-a client and a status determining the state of the document. You can create a Job by selecting the "Send" button and either selecting one of your existing clients, or entering their name and email.
+When a document is built, you can send it as a **job**.
+
+A **job** is a send instance containing:
+
+- The document (or packet)
+- Recipient(s)
+- Current status
+
+To send:
+
+1. Click **Send** on a document.
+2. Select an existing client or enter recipient details.
+3. Confirm send.
 
 ![SendButton](./images/ButtonSend.png)
-![SendModal](./images/SendModal.png)
-![MultiSend](./images/multiSend.png)
+![SendModal](./images/sendingModal.png)
 
-### After Sending
+---
 
-All sent documents can be found in the "Jobs" section of the application. Each Job is listed
-with the following attributes from left to right:
+### Parallel and Sequential Signing
 
-- Audit Trail Button
-- Job Name (Can filter alphabetically)
-- View Signed Job Button
-- Download Signed Job Button
-- Delete Job Button
-- Recipients (Can filter alphabetically)
+When sending to multiple recipients, choose signing behavior based on your workflow:
+
+- **Parallel signing**: recipients can sign independently without waiting for each other.
+- **Sequential signing**: recipients sign in a defined order.
+
+This is selected during the send workflow. After sending, progress is tracked in **Jobs**.
+
+---
+
+### After Sending (Jobs)
+
+All sent items appear in the **Jobs** page.
+
+Each job row includes:
+
+- Audit Trail action
+- Job name (sortable/filterable)
+- View Signed File action
+- Download Signed File action
+- Delete Job action
+- Recipient(s)
 - Status
 
-Each job details the document name, the recipient,
-and the status of the job. Each job also provides an audit trail showing the lifecycle of the sent document. If a document has been signed by the client, it will be marked with a "Signed" green tag. Otherwise,
-it will be marked with a "Sent" orange tag.
-
 ![SentDocumentsTable](./images/DocumentsSentTable.png)
-![AuditTrail](./images/AuditTrail.png)
+![AuditTrail](./images/auditTraiil.png)
 
-Each job in the table also has its own view button and download button. This allows for you to view or download the signed document when it is finished.
+Status examples:
+
+- **Sent** (waiting on signer activity)
+- **Signed** (completed)
+
+Each job also includes view/download options for signed outputs.
 
 ![SignedDocPreview](./images/SignedDocumentPreview.png)
 
+#### Certificate of Completion
+
+For completed jobs, admins can also download the **Certificate of Completion** from the **Jobs** page.
+The client will have it sent to their email.
+The certificate provides a record of the signing event and can be saved for compliance/audit purposes.
+
+![CertificateOfCompletion](./images/certificateOfCompletion.png)
+
+---
+
 ## Client
 
-As a client, you will have the ability to:
+Clients can:
 
-- View Documents sent to you
-- Sign Documents
+- View documents sent to them
+- Sign documents
 
-### Client Viewing and Signing Documents
+---
 
-Once an admin decides to send a built document to a client, the client will receive the link to the document in their email.
+### Open and Review a Sent Document
+
+When an admin sends a document or packet, the client receives an email link.
 
 ![emailedDoc](./images/EmailedDocument.png)
 
+Opening the link takes the client to the signing flow.
+
+---
+
 ### Signing Documents
 
-After following this link, clients will be met with a landing page that lists the documeents they have to sign and the signing status of each document. When clicking the button to sign a document, clients will be prompted to confirm the information that will autofill the document fields. Any edit made to these fields will be reflected in the rest of the document. Pressing cancel on this popup will fill all the fields with the information initially loaded. Press confirm after changing a field value to actually close the box and update the fields with your new values.
+Clients see the document(s) they need to sign and current signing progress.
 
 ![packet-demo](./images/reviewAndSign.png)
 
+Before signing fields, clients may be prompted to review autofill values and confirm updates.
+
 ![autofill-demo](./images/autofill-demo.gif)
 
-Next, clients will be presented with the built document containing all text fields to input the requested information. To fill out the document, they will use a stepper component that contains text boxes labeled with the desired input.
+Clients then complete fields using the guided signing steps.
 
-When signing a document, the address field is split into multiple input boxes instead of one single text field. This makes it easier for clients to enter and review their address information. Clients are shown separate fields for address line 1, address line 2 (optional), city, state, and zip code. As the client fills out these fields, the address is automatically combined and applied to the document.
+#### Address input behavior
 
-![expanded Address-Input](images/Address-Input.png)
+Address is captured using separate fields:
 
-When signing a document, clients can choose how they want to provide their signature. They may either type their name or draw their signature directly using their mouse or trackpad.If the draw option is selected, a signature canvas is displayed. Clients can clear and redraw their signature as needed before saving it. Once saved, the drawn signature is applied to the document and included in the final signed file.
+- Address line 1
+- Address line 2 (optional)
+- City
+- State
+- ZIP code
 
-![Draw-Signature-demo](images/DrawSignature-ezgif.com-video-to-gif-converter.gif)
+These are combined and applied to the document.
 
-On the last step they will see a 'Finish' button. After clicking this button, a modal will appear telling them 'Thanks for signing!' with an option to download their signed document. Since the signing is complete, Admins should now be able to view and download the signed document!
+![expanded Address-Input](./images/Address-Input.png)
 
-![SigningExample](images/FInal-ezgif.com-video-to-gif-converter.gif)
+#### Signature options
 
-If you elect not to download the file after you've finished. When all parties are done signing the document or packet will be emailed out to all clients.
+Clients can sign by:
 
-![finalEmailExample](images/finalEmailExample.png)
+- Typing their name, or
+- Drawing a signature with mouse/trackpad
+
+If drawing is selected, clients can clear and redraw before saving.
+
+![Draw-Signature-demo](./images/DrawSignature-ezgif.com-video-to-gif-converter.gif)
+
+At the end, clients click **Finish** and can download their signed file.
+
+![SigningExample](./images/FInal-ezgif.com-video-to-gif-converter.gif)
+
+If they do not download immediately, final signed files are sent by email once signing is complete.
+
+![finalEmailExample](./images/finalEmailExample.png)
