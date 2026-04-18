@@ -4,6 +4,8 @@
 
 2026-04-18
 
+**Automated frontend UAT:** From `cheetahsign-webclient`, run `npm run test:uat` (Vitest, mocked API). Scenario IDs such as `[DOC-LIB-1]` live in `src/unit-tests/uat.test.ts` and align with §2 below.
+
 ---
 
 # 1. Feature Overview
@@ -76,7 +78,7 @@
 
 **Status:** Client Accepted
 
-**Evidence:** `DocumentConverterTests.cs`, `UploadDocumentTests.cs`; frontend checks in `upload-form.test.ts` / `uat.test.ts` (Phase 3) for client-side validation and success path
+**Evidence:** `DocumentConverterTests.cs`, `UploadDocumentTests.cs`; `uat.test.ts` (`[DOC-UP-1]`–`[DOC-UP-4]`); `upload-form.test.ts`
 
 ---
 
@@ -418,9 +420,9 @@
 
 **Then:** Then the client is removed from the active list and success feedback is shown (or backend errors are surfaced without corrupting the table)
 
-**Status:** Pending automated UAT (frontend)
+**Status:** Client Accepted
 
-**Evidence:** _(add `uat.test.ts` / `client-display.test.ts` when implemented)_
+**Evidence:** `uat.test.ts` (`[CLIENT-4]`)
 
 ---
 
@@ -512,7 +514,7 @@
 
 **Status:** Client Accepted
 
-**Evidence:** `document-signing.test.ts`; consolidate explicit User.md parity in `uat.test.ts` (Phase 3)
+**Evidence:** `document-signing.test.ts`, `uat.test.ts` (`[SIGN-1]`–`[SIGN-4]`)
 
 ---
 

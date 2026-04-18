@@ -212,6 +212,7 @@ Cheetah Sign uses **Vitest** (frontend), **MSW** where applicable, and **xUnit**
 | Context | Command | Purpose |
 |---------|---------|---------|
 | Webclient | `npm test` | Frontend unit tests |
+| Webclient | `npm run test:uat` | Frontend UAT slice (`uat.test.ts`, mocked API; see `documentation/cheetah-sign/Documentation/uat.md`) |
 | Webclient | `npm run coverage` | Frontend coverage |
 | Webclient | `npm run integration` | Integration tests (**requires** `docker compose -f docker-compose-tests.yml up`) |
 | API | `./run-backend-tests.sh` | Backend unit tests (no coverage) |
