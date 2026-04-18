@@ -2,10 +2,37 @@
 
 ## Overview
 
-This project is built with Vue.js + TypeScript, .NET w/ C#, and PostgreSQL. It has been fully containerized with Docker. You can run the environment with a single command using 'docker compose up', or right-clicking the Docker Compose file with the VS Code Docker Extension. This documentation will go over the replication of the development
-environment using Docker.
+This project is built with Vue.js + TypeScript, .NET (C#), and PostgreSQL. The stack is containerized with Docker; the usual path is `docker compose up` from the API repo root (see [Run modes](#run-modes)). You can also run the API and webclient on the host for debugging (PostgreSQL still required).
 
-If any problems occur during this process you can email gabe.chandler@trustasc.com or kade.dentel@trustasc.com for assistance.
+Canonical developer setup for this product lives in this file. Deployment and operations are covered separately in [Deployment.md](./Deployment.md).
+
+**Support contacts:** The addresses below are from the student capstone team; replace or extend them when the product is owned by another organization. For access to the Bitbucket repository, use your Accutech or successor process.
+
+- gabe.chandler@trustasc.com  
+- kade.dentel@trustasc.com  
+
+---
+
+## Current project state (handoff)
+
+- **Product status:** User acceptance scenarios in [uat.md](./uat.md) are marked **Client Accepted** for the listed features (upload, library/favorites, send flows, packets, builder, signing, jobs/audit, downloads, etc.). Treat that file as the formal acceptance record.
+- **Engineering backlog:** Non-blocking improvements (for example packet/job schema cleanup, signing UX polish, or splitting endpoint tests into a dedicated integration test project) should be captured in your team’s issue tracker or backlog. [uat.md](./uat.md) records what the client accepted; treat anything beyond that as normal product maintenance unless your organization agrees otherwise.
+
+---
+
+## Environment and tooling
+
+| Tool | Expected | Notes |
+|------|----------|--------|
+| **Docker** | Docker Desktop or Docker Engine + Compose v2 | Required for the recommended full-stack and integration-test flows. |
+| **Node.js** | 20.x | Matches `cheetahsign-webclient` tooling; use `node -v` to verify. |
+| **npm** | Comes with Node | Used for the webclient; lockfile is `package-lock.json`. |
+| **.NET SDK** | 8.x | `dotnet --info` should show SDK 8. |
+| **Vite** | 6.x (see `cheetahsign-webclient/package.json`) | Dev server defaults to port **8080**. |
+
+**OS:** Developers use Linux, macOS, and Windows. Paths below use forward slashes; on Windows use your shell (Git Bash, WSL, or PowerShell) accordingly.
+
+---
 
 ## High-level system architecture
 
@@ -13,251 +40,267 @@ Cheetah Sign is split into four main parts:
 
 | Module | Role | How it connects |
 |--------|------|-----------------|
-| **Frontend (webclient)** | Vue 3 + Vite app; admin UI (upload, document builder, send jobs, client list) and signer-facing signing page. | Runs in the browser; calls the API over HTTP (see SDK in `cheetahsign-webclient/src/sdk/`). |
-| **API (Cheetah.Sign.Api)** | .NET 8 ASP.NET Core app; REST endpoints, business logic, PDF handling, email. | Serves HTTP on port 8080 (or 6001 in test compose); uses PostgreSQL for persistence; sends email via SMTP when configured. |
-| **Database (PostgreSQL)** | Stores documents, packets, jobs, signers, clients, audit. | API connects via connection string (env or appsettings); migrations apply on startup. |
-| **Docker** | Orchestrates containers: sign-pgdata (Postgres), sign-api (API), sign-pgadmin (optional), webclient. | `docker compose up` runs all four; `docker-compose-tests.yml` runs a test stack (mock DB, API on 6001) for frontend integration tests. |
+| **Frontend (webclient)** | Vue 3 + Vite app; admin UI (upload, document builder, send jobs, client list) and signer-facing signing page. | Browser → HTTP to the API (SDK under `cheetahsign-webclient/src/sdk/`; axios `baseURL` is `/api`, proxied in dev). |
+| **API (Cheetah.Sign.Api)** | .NET 8 ASP.NET Core app; REST endpoints, business logic, PDF handling, email. | Listens on **8080 inside the API container**; on the host, Compose maps that to **6001** (see [Ports](#ports)). Uses PostgreSQL; sends mail via SMTP when configured. |
+| **Database (PostgreSQL)** | Stores documents, packets, jobs, signers, clients, audit. | API uses `ConnectionStrings:DefaultConnection` (and compose overrides via env). |
+| **Docker** | Orchestrates Postgres, optional pgAdmin, API, webclient. | `docker compose up` from `bsu.cheetah.sign.2025/`; `docker-compose-tests.yml` is a separate stack for frontend integration tests. |
 
-**Major components for onboarding:** Webclient (Vue components, SDK, router); API (Endpoints, Services, Interfaces, Program.cs); Postgres (tables via AppDbContext/migrations); pgAdmin (optional, for inspecting the DB). See "Project & Folder Structure" and "Interfaces and implementations" below for details.
+**Major components for onboarding:** Webclient (`src/components`, `src/sdk`, router); API (`Endpoints/`, `Services/`, `Interfaces/`, `Program.cs`); Postgres schema via `Contexts/AppDbContext.cs` and EF migrations.
+
+---
+
+## Ports (full Docker stack)
+
+When you run the main `docker-compose.yml`:
+
+| Service | Host port | Purpose |
+|---------|-----------|---------|
+| Webclient (Vite) | **8080** | Admin and signer UI: http://localhost:8080/ |
+| API | **6001** | HTTP API (container port 8080 → host 6001) |
+| PostgreSQL | **5432** | Database (matches `DefaultConnection` in appsettings for localhost) |
+| pgAdmin | **8181** | DB UI (credentials in compose file) |
+
+---
+
+## Cloning the repository
+
+Source repository (Bitbucket):
+
+https://bitbucket.org/accutechcapstone/bsu.cheetah.sign.2025
+
+Clone with SSH or HTTPS, then open the **`bsu.cheetah.sign.2025`** folder. You should see **Cheetah.Sign.Api** (backend), **cheetahsign-webclient** (frontend), and Compose files **`docker-compose.yml`** and **`docker-compose-tests.yml`**.
+
+*(Optional screenshots for onboarding can live under `Documentation/images/` next to this file if your team adds them.)*
+
+---
 
 ## Prerequisites
 
-### Cloning the Repository
+### Installation
 
-You will need to access and clone the repository containing the source code. Our repository can be
-found here:
-https://bitbucket.org/accutechcapstone/bsu.cheetah.sign.2025/src/main/
+- [Docker](https://docs.docker.com/get-docker/) with Compose v2 (`docker compose version`).
+- IDE (e.g. [VS Code](https://code.visualstudio.com/) with the [Docker extension](https://code.visualstudio.com/docs/containers/overview)).
+- For local webclient development: **Node.js 20** and **npm**.
+- For local API development: **.NET 8 SDK**.
 
-Once you're on the repository you can click 'Clone'. This will give you a
-link you can use to clone into the repository.
-![cloning](./images/Cloning.png)
+### Docker login (if Compose pull/build fails with auth errors)
 
-After copying the link, open your terminal or IDE and cd into your directory
-of choice. Once in your directory, paste the link to clone the repository. If
-you run into any access errors you can get assistance by reaching out to
-gabe.chandler@trustasc.com.
+In a terminal:
 
-Once you have cloned into the repository, you will see
-two project folders - Cheetah.Sign.Api (backend) and cheetahsign-webclient (frontend) and two [Docker Compose](https://docs.docker.com/compose/) files.
+```bash
+docker login -u <username>
+```
 
-### Installation Prerequisites
+---
 
-In order to run the application, you will need the following installed:
+## Configuration reference
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/). This software lets you build and run your containerized applications.
+Configuration uses the usual ASP.NET Core order: **environment variables** (including those set by Docker Compose), then **user secrets** (local Development only), then **appsettings.json**.
 
-- IDE of your choice (we opted to use [Visual Studio Code](https://code.visualstudio.com/)
-  with the Docker Compose Extension)
+### Database
 
-- Frontend:
-  - [Node.js 20](https://nodejs.org/en)
-  - [Vue 3](https://vuejs.org/)
-  - [Vite 6](https://vite.dev/)
+| Config key | Purpose |
+|------------|---------|
+| `ConnectionStrings:DefaultConnection` | Npgsql connection string used in non-Testing environments (`Program.cs`). |
 
-- Backend:
-  - [.NET 8 SDK](https://dotnet.microsoft.com/en-us/)
+In **Docker**, Compose sets `ConnectionStrings__DefaultConnection` for the API container so the API reaches the `sign-pgdata` host (see `docker-compose.yml`).
 
-## Replicating via Docker
+For **`dotnet run`** on the host, `appsettings.json` defaults to `Server=localhost;Port=5432;...` — run PostgreSQL on 5432 or change the connection string / user secrets to match your instance.
 
-### Building The Docker Containers
+### Email (SMTP)
 
-Open your preferred IDE and your Docker Desktop application. We are using VSCode, so you will want to install the [Docker Extension](https://code.visualstudio.com/docs/containers/overview) to run it in the way presented. Now, right click on the docker-compose.yml file and select "compose up" (you can also run this command in the terminal). This can take some time to build your containers.
+| Config key | Env var (Docker / shell) | Notes |
+|------------|---------------------------|--------|
+| `Email:SmtpHost` | `Email__SmtpHost` | Required when sending mail. |
+| `Email:SmtpPort` | `Email__SmtpPort` | Default 587 if omitted. |
+| `Email:FromAddress` | `Email__FromAddress` | Required when sending. |
+| `Email:FromName` | `Email__FromName` | Optional display name. |
+| `Email:UserName` | `Email__UserName` | SMTP auth. |
+| `Email:Password` | `Email__Password` | SMTP auth. |
 
-**Note: If this fails with an authentication error, you might have to login to your Docker account in the Visual Studio Code terminal to connect them.**
+Copy **`bsu.cheetah.sign.2025/.env.example`** to **`.env`** beside `docker-compose.yml`, fill in values, and do not commit `.env`. Containers do not read the host’s `dotnet user-secrets` store.
 
-The command is:
-docker login -u \<username\>
+---
 
-You will then be asked for your Docker password. (you will not see your password as you type it in)
+## Run modes
 
-![dockerCompose](./images/dockerCompose.png)
+### 1. Full stack with Docker (recommended)
 
-You will know if the build was successful when your container names appear in your terminal and
-Docker spins up 4 images:
+From **`bsu.cheetah.sign.2025/`**:
 
-- sign-pgdata
-- sign-pgadmin
-- sign-api
-- bsucheetahsign-cheetahsign-webclient-1
+```bash
+docker compose up
+```
 
-This is how it will appear on Docker Desktop:
+First build can take several minutes. When healthy, open http://localhost:8080/ for the UI. The API is available at http://localhost:6001/ (e.g. Swagger in Development).
 
-![dockerContainer](./images/DockerContainer.png)
+**Smoke test:** Upload a document; if it appears in the library, the stack is wired correctly.
 
-### Editing the Frontend
+Inside Compose, the Vite dev server proxies `/api` to the `sign-api` service (`cheetahsign-webclient/vite.config.ts`).
 
-Everything relating to the frontend for administrators will be found in the 'cheetahsign-webclient' directory. For now, the page where users will sign documents lies in this directory as well. DefaultLayout.vue is the template page that all of our components inherit from except for the Document Builder and Signing Page. This also contains our [Vue Router](https://router.vuejs.org/) to allow for navigation between different parts of the application.
+### 2. API on the host + webclient on the host
 
-Vue follows a component-based architecture. So, everything we make on the frontend is based around our components. Each of our different sections in our webpage is a separate component. For example, if you were to need an upload form for 2 different parts of the application, you wouldn't need to make 2 separate forms in each of the Vue files. Instead, you could make one upload form and each component could inherit it into their own Vue file. This is how you use Vue to work with the frontend.
+Use this when you want breakpoints in both tiers without rebuilding images.
 
-Another piece of the frontend puzzle are the API calls that are made to talk to our backend. The way this is done falls into our 'sdk' folder in the webclient directory. Each of the classes located in these 'client' files contain a variety of asynchronous methods that we can call in our Vue components. If they're HTTP GET requests, they just contain the endpoint to talk to the backend. If they're an HTTP POST request, they also will contain a body to be sent. For example, if you were sending a file to the backend, you would define a body of Form Data that contains your file. It would then be sent with your POST request and the backend will receieve it. Once the backend has it you could manipulate the file or even save it to the database.
+1. Start **PostgreSQL** with credentials matching `ConnectionStrings:DefaultConnection` (or override via user secrets / env).
+2. From **`Cheetah.Sign.Api/`**, run `dotnet run` (HTTP profile uses **http://localhost:6001** per `Properties/launchSettings.json`).
+3. Configure **SMTP** via user secrets or environment variables if you will exercise email.
+4. From **`cheetahsign-webclient/`**, the Vite config proxies `/api` to **`http://sign-api:8080`**, which only resolves **inside Docker**. For a purely local loop, point the proxy at your local API, e.g. in `vite.config.ts` set `server.proxy["/api"].target` to `http://localhost:6001`, run `npm install` once, then `npm run dev` (port **8080**).
 
-### Editing the Backend (Endpoints and Services)
+### 3. Integration test stack (webclient integration tests)
 
-Everything relating to the backend will be found in the Cheetah.Sign.Api directory. The API follows a clear flow: **HTTP request → Endpoint → interface (injected) → Service implementation → DbContext or external APIs → response.** Endpoints (in `Endpoints/*.cs`) define routes and do minimal work—validate input, call a **service** via its **interface**, return the result. Services (in `Services/`) hold business and data-access logic; each implements an interface in `Interfaces/` and is registered in `Program.cs` as scoped so the container injects it when an endpoint requests it.
+Frontend integration tests expect the **test** Compose file and a cleared test database workflow (see [Running integration tests](#running-integration-tests)).
 
-You will primarily edit files in the `Endpoints` and `Services` directories. New endpoints must be registered in `Program.cs` (e.g. `app.AddEditDocumentEndpoints()`). A typical pattern: an endpoint method like `AddEditDocumentEndpoints` registers a POST route that corresponds to one of the SDK async methods in the web client; the route handler receives the relevant service interface (e.g. `ICoordinateService`) and calls it to perform the work (e.g. save coordinates).
+From **`bsu.cheetah.sign.2025/`**:
 
-![EndpointsExample](./images/EndpointsExample.png)
-![EndpointsExample](./images/AddEndpoints.png)
+```bash
+docker compose -f docker-compose-tests.yml up
+```
 
-### Editing the Backend (PostgreSQL Database)
+Then in **`cheetahsign-webclient/`**:
 
-If you want to edit the database, refer to the Contexts folder with the file [AppDbContext](https://sbelialov.medium.com/quick-and-easy-dbcontext-setup-in-net-70e2211be8f4). This file is used to define
-your database tables and fields, and it must correlate with the actual database server setup. You can define and edit our Postgres database server tables within the 'sign-pgadmin' port on Docker (you can find the login info in the docker compose file under pg-admin). This will take you to [pgAdmin](https://www.pgadmin.org/), a development platform for PostgreSQL. However, your tables should automatically be created when you run the application. These are based off our latest [database migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli) found in the 'migrations' folder.
+```bash
+npm run integration
+```
 
-![pgAdmin](./images/pgadmin.png)
+Use **`docker-compose-tests.yml`** (with an “s”); there is no `docker-compose-test.yml`.
 
-To actually perform database operations, we use [Microsoft Entity Framework](https://learn.microsoft.com/en-us/aspnet/entity-framework) - an object-relational mapper. Entity Framework provides a seamless and efficient way to interact with a database by allowing you to work with them using C# objects. It works directly with the AppDbContext we mentioned earlier. These operations can be found in our 'Endpoints' directory.
+---
+
+## Docker operations (developer)
+
+- **Rebuild after dependency changes:** `docker compose build` or `docker compose up --build`.
+- **Logs:** `docker compose logs -f` (optionally pass a service name).
+- **Database volume:** The main compose file uses a named volume for Postgres data; removing volumes resets the DB (destructive).
+- **One stack at a time:** The main `docker-compose.yml` and `docker-compose-tests.yml` both map common host ports (e.g. **5432**, **6001**). Stop one compose stack before starting the other to avoid port conflicts.
+
+---
 
 ## Email (required to send)
 
-The API registers **SmtpEmailSender** only; there is no no-op or fallback when config is missing. Email config is read from **appsettings**, **user secrets** (when running locally), or **environment variables** (when running in Docker). **To send email** (e.g. signing invites, final-document emails), all of the following must be set; otherwise the first send will throw `InvalidOperationException` with a message like "Email configuration missing: {key}."
+The API registers **`SmtpEmailSender`** as `IEmailSender`. There is no no-op sender in production code (tests may use substitutes).
 
-**Running with Docker (e.g. `docker compose up`):**
+Email is read from **appsettings**, **user secrets** (local `dotnet run`), or **environment variables** / **`.env`** (Docker).
 
-- The repo contains **`.env.example`** only. Each developer **creates a local `.env`** (copy from `.env.example`) with SMTP credentials and **does not commit `.env`**. User secrets are not available inside the container, so the sign-api container gets email config from this `.env` file.
-- Put `.env` in the same directory as `docker-compose.yml` (e.g. `bsu.cheetah.sign.2025/`), then set the values. Use **double underscore** in variable names (ASP.NET Core maps `Email__SmtpHost` to `Email:SmtpHost`):
-  - `Email__SmtpHost` (e.g. `smtp.gmail.com`)
-  - `Email__SmtpPort` (e.g. `587`)
-  - `Email__FromAddress`, `Email__FromName`, `Email__UserName`, `Email__Password`
-- Docker Compose reads `.env` and passes these into the container. Do not commit `.env` (it is in `.gitignore`).
+**Docker:** Put `.env` next to `docker-compose.yml`. Map keys with double underscores, e.g. `Email__SmtpHost` → `Email:SmtpHost`.
 
-**Running locally (e.g. `dotnet run` from Cheetah.Sign.Api):**
+**Local API:** Example: `dotnet user-secrets set "Email:SmtpHost" "smtp.example.com"` (and the other keys under `Email:*`).
 
-- Use **user secrets** so credentials stay off disk: from the API project directory, run e.g. `dotnet user-secrets set "Email:SmtpHost" "smtp.gmail.com"` (and the other keys: `Email:SmtpPort`, `Email:FromAddress`, `Email:FromName`, `Email:UserName`, `Email:Password`). User secrets are loaded automatically in Development.
+**Behavior:** The app can start without SMTP. When a flow **calls** `IEmailSender` (e.g. signing invite, final document), missing required keys cause `InvalidOperationException` from `SmtpEmailSender` (“Email configuration missing: …”). To develop without email, avoid flows that send mail or supply full SMTP settings.
 
-**Behavior:** The app always uses `SmtpEmailSender`. If any required key (`Email:SmtpHost`, `Email:FromAddress`, `Email:UserName`, `Email:Password`) is missing when a send is attempted (e.g. creating a job that triggers a signing invite), the app throws. There is no conditional no-op sender; `NoOpEmailSender` exists only in unit tests. To run without sending email you must avoid flows that trigger send (e.g. don't create jobs that email); optional no-op or startup warning will be added later.
+---
 
-## Accessing the Application & How to Test
+## Database lifecycle
 
-Once you have Docker Desktop running the containers for the API, Postgres, and the web client,
-you can access the application. Navigate to the URL http://localhost:8080/
+- **Migrations:** EF Core migrations live under **`Cheetah.Sign.Api/Migrations/`**. On startup (non-Testing environment), the API runs **`MigrateDatabase()`** (`Program.cs`) so the database schema is brought up to date automatically.
+- **Changing the model:** After editing `AppDbContext` / entities, add a migration with the EF tools from the API project (see Microsoft docs for `dotnet ef migrations add`). Commit migration files with the code change.
+- **Testing profile:** When `ASPNETCORE_ENVIRONMENT` is **Testing** (integration test compose), the app uses an in-memory fixture database path instead of applying migrations the same way — see `Program.cs`.
 
-To test if the application is running
-correctly, attempt to upload a document. If the
-table populates with your file, your environment is set up correctly. You could also try running the unit and integration tests.
+---
 
-## Unit & Integration Testing
+## Unit and integration testing
 
-Cheetah Sign is being tested with both unit tests and integration tests ([read about the difference between these two here](https://circleci.com/blog/unit-testing-vs-integration-testing/)). For the frontend we are using [Vitest](https://vitest.dev/) with [Mock Service Worker](https://mswjs.io/), and on the backend we are using [Xunit](https://xunit.net/) with a mock PostgreSQL database. Both of these have test coverage tools we use as well. The frontend unit and integration tests are found in their 'unit-tests' and 'integration-tests' directories respectively. The backend unit tests are in the API's `UnitTests/` directory; tests use **services via their interfaces** (resolved from the DI scope or constructed with mocks), not static handler classes. The mock PostgreSQL databases live in `Contexts/` (e.g. `PgDataFixture` for unit tests, `PgDataFixtureIntegration` for integration tests).
+Cheetah Sign uses **Vitest** (frontend), **MSW** where applicable, and **xUnit** (backend). Backend tests use **`PgDataFixture`** / **`PgDataFixtureIntegration`** under `Contexts/` for isolated databases.
 
-**Quick reference (run from webclient or API directory as indicated):**
+### Quality expectations (development)
+
+- Prefer running **frontend unit tests** and **backend unit tests** before merging substantial changes.
+- **Frontend integration tests** require the test Docker stack; treat failures there as regressions in API + client contract.
+
+### Commands
 
 | Context | Command | Purpose |
 |---------|---------|---------|
 | Webclient | `npm test` | Frontend unit tests |
-| Webclient | `npm run coverage` | Frontend test coverage |
-| Webclient | `npm run integration` | Integration tests (requires `docker compose -f docker-compose-tests.yml up`) |
-| API | `./run-backend-tests.sh` | Backend unit tests, no coverage |
-| API | `./run-backend-coverage.sh` (or `.ps1` on Windows) | Backend unit tests + coverage report (terminal summary + HTML) |
+| Webclient | `npm run coverage` | Frontend coverage |
+| Webclient | `npm run integration` | Integration tests (**requires** `docker compose -f docker-compose-tests.yml up`) |
+| API | `./run-backend-tests.sh` | Backend unit tests (no coverage) |
+| API | `./run-backend-coverage.sh` or `run-backend-coverage.ps1` | Backend coverage + HTML report under `coveragereport/` |
 
-Frontend (webclient directory):
+**Backend coverage scripts** expect [Coverlet](https://github.com/coverlet-coverage/coverlet) and optionally [ReportGenerator](https://github.com/danielpalme/ReportGenerator) (`dotnet tool install -g dotnet-reportgenerator-globaltool`). The scripts print a summary and emit `coveragereport/index.html`.
 
-- `npm test` for frontend unit tests
-- `npm run coverage` for frontend test coverage
-- `npm run integration` for integration tests
+### Running integration tests
 
-Backend (API directory):
+The **`docker-compose-tests.yml`** stack must be running before `npm run integration`. That compose uses environment **Testing** so the API uses the integration fixture database and exposes mock endpoints used to reset data between tests.
 
-- Backend unit tests (no coverage):
-  - Run `./run-backend-tests.sh` from the API directory (on Windows you can use the same script in a Git Bash or WSL shell, or run `dotnet test UnitTests/UnitTests.csproj` directly).
-- Backend test coverage:
-  - Linux/macOS: run `./run-backend-coverage.sh` from the API directory.
-  - Windows (PowerShell): run `./run-backend-coverage.ps1` from the API directory.
-  - Both scripts run unit tests with [Coverlet](https://github.com/coverlet-coverage/coverlet), then generate an HTML report in the `coveragereport/` folder and a **text summary** (ReportGenerator `TextSummary`) that is **printed to the terminal**. You need the ReportGenerator global tool: `dotnet tool install -g dotnet-reportgenerator-globaltool`.
-  - Open `coveragereport/index.html` for the full report; the terminal output shows line/branch coverage at a glance.
-  - To run coverage and report steps manually:
-    - `dotnet test UnitTests/UnitTests.csproj --collect:"XPlat Code Coverage"` to collect coverage (output: UnitTests/TestResults/\*/coverage.cobertura.xml)
-    - `reportgenerator -reports:"UnitTests/TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:Html;TextSummary` to generate the HTML report and text summary.
+Vitest integration tests call backend endpoints to prepare state; see `cheetahsign-webclient/src/integration-tests/` for details.
 
-### Running Integration Tests
+**Note:** A separate **`IntegrationTests/`** .NET project (WebApplicationFactory, etc.) is **not** present in the repository; backend endpoint coverage today includes **`UnitTests/`** hitting localhost where noted in those tests.
 
-To run the integration tests, you need a bit more setup first.
+### Duplicate assembly attribute errors (.NET build)
 
-If you remember earlier, we mentioned that this project contains two [Docker Compose](https://docs.docker.com/compose/) files. The main Docker Compose, 'docker-compose.yml', is what is used to run the main application (and it's run by default when running the docker compose up command). The 'docker-compose-tests.yml' file is used for running our integration tests. **This compose MUST be running to successfully run our integration tests**. This Docker Compose stack makes sure that the backend runs our mock database and not our development/production database. To run this specific Docker Compose, use the command 'docker-compose -f docker-compose-tests.yml up'. You will then be good to run 'npm run integration' to start the integration tests.
+If the build fails with **duplicate** `AssemblyCompanyAttribute`, `AssemblyVersionAttribute`, or similar **assembly info** errors, stale output is usually the cause (common after switching branches or pulling).
 
-The Vitest integration test files are a little bit more complicated than the normal unit tests. Essentially, we are calling an endpoint before every integration is ran. This endpoint clears the database (to always start the tests with a fresh mock database) and saves one mock document to the mock database. The one document being in the database is crucial for the tests to actually test how our frontend and backend interact.
+1. From **`bsu.cheetah.sign.2025/`**, run **`dotnet clean`** on the solution, then build again.
+2. If it still fails, delete the unit test build folders: **`Cheetah.Sign.Api/UnitTests/obj`** and **`Cheetah.Sign.Api/UnitTests/bin`**, then rebuild.
 
+See also the troubleshooting table in [Deployment.md](./Deployment.md#troubleshooting-playbook).
 
-## Project & Folder Structure
+---
 
-### Frontend (cheetahsign-webclient)
+## Project and folder structure
 
-- Components
-  <br>
-  This contains all of our Vue components. Components are reusable pieces of code that encapsulates a specific part of the UI. These contain the different sections of our application. For example, our upload form modal, tables for displaying uploaded documents, Document Builder, etc.
+### Frontend (`cheetahsign-webclient`)
 
-- SDK
-  <br>
-  This contains all of the classes that hold our asynchronous methods to allow us to communicate with our backend. For example, when making a POST request to upload a document, we create an asynchronous method that takes an argument of FormData and a return type (a string in our case). We define our endpoint and our argument (request) is used as the POST body. This is then sent to the backend.
+- **`src/components/`** — Vue components (upload, tables, Document Builder, job views, etc.).
+- **`src/sdk/`** — API clients (async methods per feature area); shared HTTP setup under `sdk/service-base/` (axios instance with `baseURL: "/api"`).
+- **`src/unit-tests/`** / **`src/integration-tests/`** — Vitest tests.
 
-![asyncMethod](./images/asyncMethod.png)
+### Backend (`Cheetah.Sign.Api`)
 
-- Service-Base
-  <br>
-  Within our SDK folder, our service base folder contains our service base file and our axios setup file. These are both an integral part of our application. Axios is a popular JavaScript library used for making HTTP requests. Our service base file adds to that and is like a template that is designed to help us reuse HTTP methods across other classes, avoiding duplication of code.
+| Layer | Location | Description |
+|-------|----------|-------------|
+| **Interfaces** | `Interfaces/*.cs` | Service contracts (`IJobService`, `IPacketService`, etc.). |
+| **Services** | `Services/*.cs` | Business logic and persistence via `AppDbContext`. |
+| **Endpoints** | `Endpoints/*.cs` | Minimal route wiring; call injected services. |
+| **Data** | `Contexts/AppDbContext.cs` | EF Core model. |
 
-  Service-Base also contains our 'vuex.ts' file. This file is using a Vue library called Vuex, which is a state management library. We use it primarily for reactively updating our UI when a document is uploaded, so you don't have to refresh the page to see the changes.
+**PDF and coordinates:** Implemented in `Services/` (e.g. `DocumentEditor`, `CoordinateConverter`, `CoordinateService`) using [iText Core](https://itextpdf.com/products/itext-core).
 
-### Backend (Cheetah.Sign.Api)
+**Interfaces registered in `Program.cs` (scoped):**
 
-| Layer          | Location                   | Description                                                                                                                                                                                                                                                                                                 |
-| -------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Interfaces** | `Interfaces/*.cs`          | Service contracts (e.g. `IJobService`, `IPacketService`, `IDocumentConverter`). Endpoints depend on these; implementations live in `Services/` and are registered in `Program.cs` as scoped.                                                                                                                |
-| **Services**   | `Services/*.cs`            | Implementations of the interfaces: business logic, data access, and helpers (e.g. `JobService`, `PacketService`, `UploadDocumentService`, `CoordinateService`, `DocumentEditor`, `LibreOfficeDocumentConverter`). Called by endpoints via dependency injection.                                             |
-| **Endpoints**  | `Endpoints/*.cs`           | Classes that define HTTP routes (e.g. `FileJobberEndpoints`, `DocumentQueryEndpoints`, `DocumentUploadEndpoints`). Each receives requests from the frontend (see SDK), calls one or more services via their interfaces, and returns responses. DTOs are used to transfer data between frontend and backend. |
-| **Data**       | `Contexts/AppDbContext.cs` | EF Core DbContext; bridge between the application and the PostgreSQL database. Services use it for persistence. No separate repository layer; services use `AppDbContext` directly.                                                                                                                         |
+| Interface | Implementation | Role |
+|-----------|----------------|------|
+| `IAuditTrailService` | `ScopedAuditTrailService` | Job audit events. |
+| `IEmailSender` | `SmtpEmailSender` | SMTP email. |
+| `IJobService` | `JobService` | Jobs lifecycle, signing hooks. |
+| `IPacketService` | `PacketService` | Packets and documents in packets. |
+| `IClientProfileService` | `ClientProfileService` | Client profiles. |
+| `IDocumentQueryService` | `DocumentQueryService` | Document queries and file bytes. |
+| `IDocumentConverter` | `LibreOfficeDocumentConverter` | Office → PDF conversion where applicable. |
+| `IUploadDocumentService` | `UploadDocumentService` | Upload pipeline. |
+| `ICoordinateService` | `CoordinateService` | Coordinates and PDF rendering for signing. |
+| `IFieldValidationService` | `FieldValidationService` | Field validation presets. |
+| `IJobSummaryService` | `JobSummaryService` | Job summary/listing helpers. |
+| `IPacketZipBuilder` | `PacketZipBuilder` | Packet zip download support. |
 
-- **PDF and coordinates:** Text boxes for document building and signing, and PDF rendering, are implemented in `Services/` (e.g. `DocumentEditor`, `CoordinateConverter`, `CoordinateService`) using [iText Core](https://itextpdf.com/products/itext-core). `EditDocumentEndpoints` and `JobSignerEndpoints` call `ICoordinateService` for coordinate save and PDF-with-boxes rendering.
+New behavior should extend the appropriate service interface and keep endpoints thin.
 
-- **Migrations**
-  <br>
-  The Migrations folder contains EF Core migrations: version-controlled schema changes. They are applied automatically on startup (see `Program.cs`).
+### Important files
 
-- **Contexts**
-  <br>
-  Contains `AppDbContext` (database bridge) and the mock PostgreSQL fixtures (`PgDataFixture.cs` for unit tests, `PgDataFixtureIntegration.cs` for integration tests).
+- **`docker-compose.yml`** / **`docker-compose-tests.yml`** — Main app vs integration-test stack (separate DB and API configuration for tests).
+- **`Program.cs`** — DbContext, SMTP-backed email, scoped services, endpoint registration, `MigrateDatabase()` (except in Testing).
+- **`Contexts/PgDataFixture.cs`**, **`PgDataFixtureIntegration.cs`** — Test databases.
+- **`cheetahsign-webclient/src/main.ts`**, **`App.vue`**, **`DefaultLayout.vue`** — App bootstrap and default chrome (signing and Document Builder may bypass the default layout).
 
-**Interfaces and implementations (all registered in `Program.cs` as scoped):**
+Endpoint modules are registered in `Program.cs`, including (among others): file delete, document upload/query, file jobber, packets, job signer, edit document, saved field templates, client profile, mock endpoints (for integration tests), favorites, job view.
 
-| Interface                | Implementation                 | Role                                                                |
-| ------------------------ | ------------------------------ | ------------------------------------------------------------------- |
-| `IAuditTrailService`     | `ScopedAuditTrailService`      | Records job status changes; caller saves context.                   |
-| `IEmailSender`           | `SmtpEmailSender`              | Sends signing-invite and final-document emails.                     |
-| `IJobService`            | `JobService`                   | Jobs: create, sign, delete, packet download, list, get for signing. |
-| `IPacketService`         | `PacketService`                | Packets: CRUD, add/remove/reorder documents.                        |
-| `IClientProfileService`  | `ClientProfileService`         | Client profiles: CRUD, get last client.                             |
-| `IDocumentQueryService`  | `DocumentQueryService`         | Document list, file bytes, metadata (file/document queries).        |
-| `IDocumentConverter`     | `LibreOfficeDocumentConverter` | Converts uploaded files (e.g. docx) to internal format.             |
-| `IUploadDocumentService` | `UploadDocumentService`        | File upload and conversion.                                         |
-| `ICoordinateService`     | `CoordinateService`            | Save/retrieve coordinates; render PDFs with signing boxes.            |
-| `IFieldValidationService` | `FieldValidationService`       | Field/signer validation presets; used by JobService on sign.         |
+---
 
-When adding new behavior: extend the appropriate interface and implementation (e.g. jobs → `IJobService`/`JobService`); keep endpoints thin (validate, call service, return).
+## Editing the frontend
 
-### Important Files
+Admin UI and the signing experience live under **`cheetahsign-webclient`**. `DefaultLayout.vue` wraps most routes; Document Builder and signing use their own layouts. Shared API access goes through **`src/sdk/`** (axios-based clients).
 
-- docker-compose.yml & docker-compose-tests.yml
-  <br>
-  Like mentioned before, our docker-compose.yml is used for running our main application. The docker-compose-tests.yml is only used for running the integration tests. We need this extra Docker Compose file so it can spin up our mock PostgreSQL database rather than our development/production database. These files contain everything you need to run our application by simply using the command 'docker compose up'.
+---
 
-- Program.cs
-  <br>
-  Configures database connections, environment variables, HTTP pipeline, and automatic database migration. All **scoped services** (the ten interfaces above) and **endpoint extensions** are registered here in a fixed order: e.g. `AddFileDeleterEndpoints`, `AddDocumentUploadEndpoints`, `AddDocumentQueryEndpoints`, `AddFileJobberEndpoints`, `AddPacketEndpoints`, `AddJobSignerEndpoints`, `AddEditDocumentEndpoints`, `AddClientProfileEndpoints`, `AddMockEndpoints`, `AddJobViewEndpoints`.
+## Editing the backend (endpoints and services)
 
-- PgDataFixture.cs & PgDataFixtureIntegration.cs
-  <br>
-  These files contain our mock databases. One used for backend unit testing and the other used for integration testing.
+Flow: **HTTP → Endpoint → injected interface → service → `AppDbContext` / external systems → response.** Register new route groups in `Program.cs` after implementing the service behavior.
 
-- AppDbContext.cs
-  <br>
-  This file contains our AppDbContext, which is a class that serves as a bridge between your application and the database. It is responsible for managing your database tables and fields.
+---
 
-- main.ts
-  <br>
-  This file is used to initialise the root component of our Vue application. It's basically where the app starts running. It is used for registering plugins (like Vue Router, Vuex, PrimeVue, etc.). Since we use stuff like the UI library [PrimeVue](https://primevue.org/) and the library [Vue Router](https://router.vuejs.org/), we must register these plugins globally for our app.
+## Editing the database (pgAdmin / EF)
 
-- App.vue & DefaultLayout.vue
-  App.vue contains the root component of a Vue app. it is like the main template that your entire UI builds off of. In our case, we want a basic header UI template to be used in all of the sections of our application except for the signing page and Document Builder page. So, we use DefaultLayout.vue to contain that UI with the navbar template, and then we have an empty UI for those other two pages.
-  <br>
+Optional: open pgAdmin at http://localhost:8181/ using credentials from `docker-compose.yml`. Prefer schema changes via **EF migrations** checked into `Migrations/` rather than manual edits in production-bound databases.
+
+---
