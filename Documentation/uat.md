@@ -2,7 +2,7 @@
 
 ## Last Updated:
 
-2026-04-15
+2026-04-18
 
 ---
 
@@ -11,6 +11,7 @@
 | Feature                                                         | Priority | Iteration | Client Facing (Y/N) |
 | --------------------------------------------------------------- | -------- | --------- | ------------------- |
 | Document Upload                                                 | High     | 0/1       | Y                   |
+| Document conversion (Office → PDF)                             | High     | 0/1       | Y                   |
 | Document Library (list/search/filter/favorites)                 | High     | 0/1/2/3/4 | Y                   |
 | Send Document (manual + client dropdown)                        | High     | 0/1/2/3/4 | Y                   |
 | Multi-signer Send (sequential + parallel)                       | High     | 1/2/3/4   | Y                   |
@@ -18,7 +19,7 @@
 | Packet Preview                                                  | Medium   | 2/3/4     | Y                   |
 | Document Builder (drag/drop fields + signer assignment)         | High     | 0/1/2/3/4 | Y                   |
 | Custom Field Templates                                          | Medium   | 3/4       | Y                   |
-| Client Management (create/edit/list/validation)                 | High     | 0/1/2/3/4 | Y                   |
+| Client Management (create/edit/delete/list/validation)          | High     | 0/1/2/3/4 | Y                   |
 | Job Dashboard (status, search, recipient/status filters, audit) | High     | 0/1/2/3/4 | Y                   |
 | Document Signing (single + packet docs, validation/autofill)    | High     | 0/1/2/3/4 | Y                   |
 | Download Completed Job/Packet + Certificate                     | High     | 2/3/4     | Y                   |
@@ -65,6 +66,18 @@
 
 **Evidence:** `UploadDocumentTests.cs` (`testUploadDocument_FileTooLarge`)
 
+### Scenario 4: Office formats convert for signing (User.md — Document Conversion)
+
+**Given:** Given an admin uploads a `.doc`, `.docx`, or `.xlsx` file (supported types per User.md)
+
+**When:** When the server processes the upload
+
+**Then:** Then output is suitable for the signing flow as PDF (conversion pipeline); user sees post-upload flow consistent with a ready-to-build document
+
+**Status:** Client Accepted
+
+**Evidence:** `DocumentConverterTests.cs`, `UploadDocumentTests.cs`; frontend checks in `upload-form.test.ts` / `uat.test.ts` (Phase 3) for client-side validation and success path
+
 ---
 
 ## Feature: Document Library (list/search/filter/favorites)
@@ -75,7 +88,7 @@
 
 **When:** When a user opens the Documents screen
 
-**Then:** Then documents and packet summaries are shown and searchable
+**Then:** Then documents and packet summaries are shown and searchable; row actions (build, send, view, delete, favorite) are available as implemented
 
 **Status:** Client Accepted
 
@@ -104,6 +117,18 @@
 **Status:** Client Accepted
 
 **Evidence:** `display-docs.test.ts` (favorites toggle/filter cases)
+
+### Scenario 4: View single document (User.md — Viewing Documents)
+
+**Given:** Given a document row on the Documents page (not necessarily a packet)
+
+**When:** When the user uses the **View** action
+
+**Then:** Then a preview path opens for that document (e.g. preview modal / PDF display) so the user can review before send
+
+**Status:** Client Accepted
+
+**Evidence:** `display-docs.test.ts` (`displayPdf`, view modal / iframe behavior)
 
 ---
 
@@ -347,7 +372,7 @@
 
 ---
 
-## Feature: Client Management (create/edit/list/validation)
+## Feature: Client Management (create/edit/delete/list/validation)
 
 ### Scenario 1: Happy Path
 
@@ -384,6 +409,18 @@
 **Status:** Client Accepted
 
 **Evidence:** `client-display.test.ts` address collapse and validation tests
+
+### Scenario 4: Delete client
+
+**Given:** Given an existing client that can be removed per business rules
+
+**When:** When the user confirms delete from the client row action
+
+**Then:** Then the client is removed from the active list and success feedback is shown (or backend errors are surfaced without corrupting the table)
+
+**Status:** Pending automated UAT (frontend)
+
+**Evidence:** _(add `uat.test.ts` / `client-display.test.ts` when implemented)_
 
 ---
 
@@ -431,7 +468,7 @@
 
 ### Scenario 1: Happy Path
 
-**Given:** Given a signer receives a valid signing link/job
+**Given:** Given a signer receives a valid signing link or job (User.md: link from email opens signing flow)
 
 **When:** When they complete all required fields and sign
 
@@ -464,6 +501,18 @@
 **Status:** Client Accepted
 
 **Evidence:** `document-signing.test.ts` (document status + lock behavior)
+
+### Scenario 4: Signing modalities and review (client UX)
+
+**Given:** Given the signing screen is showing required fields
+
+**When:** When the signer uses typed vs drawn signature (including clear/redraw), confirms autofill where prompted, and completes combined address fields
+
+**Then:** Then inputs stay consistent with validation, and finish/download paths remain available without client crash
+
+**Status:** Client Accepted
+
+**Evidence:** `document-signing.test.ts`; consolidate explicit User.md parity in `uat.test.ts` (Phase 3)
 
 ---
 
